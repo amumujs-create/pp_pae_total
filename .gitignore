@@ -1,5 +1,5 @@
 .build_ppt/
 slides/node_modules/
-output/*_v[1-4].pptx
+output/*_v[1-6].pptx
 
 slides/node_modules
