@@ -58,6 +58,13 @@ See [the Korean research-program document](RESEARCH_PROGRAM_KO.md) for the full 
 3. Test across domains whose admissible priors differ, rather than merely swapping datasets.
 4. Quantify selective risk and coverage for support-remote predictions.
 
+## Presentations
+
+- PP–PAE overview deck: `output/PP_PAE_Assumption_Aware_Extrapolation_v7.pptx` (builder: `slides/build_deck.mjs`)
+- PP research detailed briefing (SAAR / adaptive dual-scale PP): `output/PP_Research_Detailed_v2.pptx` (builder: `slides/pp_research/`)
+
+Edit the fixed deck files in place; do not create parallel v3+ copies of the detailed briefing.
+
 ## Status
 
 This repository documents the research program. It does not claim that the full compiler–executor–assurance stack has already been implemented or externally validated.

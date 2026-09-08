@@ -1,5 +1,6 @@
 .build_ppt/
 slides/node_modules/
-output/*_v[1-6].pptx
+# Keep only the latest intermediate PAE deck versions out of git
+output/PP_PAE_Assumption_Aware_Extrapolation_v[1-6].pptx
 
 slides/node_modules
