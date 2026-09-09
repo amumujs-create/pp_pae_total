@@ -125,7 +125,7 @@ def foot(slide, n):
     line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(72), px(674), px(1208), px(674))
     line.line.color.rgb = C["line"]
     line.line.width = Pt(1)
-    add_text(slide, 72, 682, 780, 16, "Smart Production Systems Lab.  /  PP Extrapolation Research", 9, C["grey"])
+    add_text(slide, 72, 682, 780, 16, "Smart Production Systems Lab.  /  Assumption-Aware Extrapolation", 9, C["grey"])
     add_text(slide, 1140, 680, 60, 18, f"{n:02d}", 11, C["grey"], True, "right")
 
 
@@ -166,8 +166,9 @@ def build():
         s.shapes.add_picture(str(logo), px(820), px(48), px(400), px(80))
     else:
         add_text(s, 820, 55, 400, 60, "Smart Production\nSystems Laboratory", 12, C["ink"], True, "right")
-    add_text(s, 140, 250, 1000, 70, "PP Extrapolation Research", 36, C["ink"], True, "center")
-    add_text(s, 140, 330, 1000, 40, "식 없는 외삽 안전장치 (SAAR / PP)", 20, C["ink"], False, "center")
+    add_text(s, 140, 230, 1000, 55, "가정 인식형 외삽의 통합 프레임워크", 30, C["ink"], True, "center")
+    add_text(s, 140, 295, 1000, 36, "Assumption-Aware Extrapolation  ·  PAE / SAAR", 16, C["ink"], False, "center")
+    add_text(s, 140, 340, 1000, 32, "현재 단계: 식 없는 경로 (SAAR / PP)", 15, C["grey"], False, "center")
     add_text(s, 140, 400, 1000, 28, "Smart Production Systems Lab.", 16, C["ink"], False, "center")
     add_text(s, 140, 440, 1000, 28, "박사과정 박형배", 16, C["ink"], False, "center")
     add_text(s, 140, 560, 1000, 28, "2026.09.09", 16, C["ink"], False, "center")
@@ -177,14 +178,14 @@ def build():
     s = blank(prs)
     rect(s, 0, 0, 1280, 8, C["navy"])
     add_text(s, 70, 28, 900, 28, "Assumption-Aware Extrapolation", 12, C["grey"], True)
-    add_text(s, 70, 52, 1000, 36, "최종으로 만들고 싶은 그림", 24, C["ink"], True)
+    add_text(s, 70, 52, 1000, 36, "가정 인식형 외삽의 통합 루트", 24, C["ink"], True)
     add_text(
         s,
         70,
         92,
         1100,
         24,
-        "식 있으면 PAE  ·  식 없으면 PP  ·  지금은 PP 단계",
+        "통합 목표: 외삽의 범용화  ·  식 유무는 경로  ·  지금은 SAAR(PP)",
         14,
         C["teal"],
         True,
@@ -208,40 +209,16 @@ def build():
 
     # ===== 2 PP summary (before detail) =====
     s = blank(prs)
-    topbar(s, "03", "PP 서머리", "두괄식  ·  식 없는 경로의 지금 결론")
-    rect(s, 70, 145, 1140, 100, C["teal"], None, True)
-    add_text(s, 95, 158, 280, 22, "EQUATION-FREE  ·  SAAR", 11, C["white"], True)
-    add_text(
-        s,
-        95,
-        185,
-        1090,
-        45,
-        "PP = 식 없는 외삽 안전장치.  고정 affine + 제한 residual.\n"
-        "대비: PAE = 식 있는 경로 (이번 주결과 아님).",
-        15,
-        C["white"],
-    )
-    bits = [
-        ("한 줄 식", "ŷ = m · softplus(ℓ + cθ)\nm: 경계 · ℓ: 동결 affine\ncθ: dual-scale residual", C["navy"]),
-        ("주 결과", "Sunwoda / RWTH / MICH\n0.934 / 0.842 / 0.751\n최저점을 살린 tradeoff", C["blue"]),
-        ("주장 범위", "연속 열화 · 경계 prior\nval ≈ test일 때\n만능 SOTA 아님", C["orange"]),
-        ("아직", "Zn · 베어링 = 한계/확장\nPAE(식 있음) 결과 없음\n분야 Q1–Q2 본선", C["crimson"]),
-    ]
-    for i, (h, b, col) in enumerate(bits):
-        x = 70 + i * 290
-        y = 275
-        rect(s, x, y, 275, 240, C["white"], C["line"], True)
-        rect(s, x, y, 6, 240, col)
-        add_text(s, x + 20, y + 18, 230, 28, h, 15, col, True)
-        add_text(s, x + 20, y + 60, 230, 160, b, 13, C["ink"])
+    topbar(s, "03", "SAAR 서머리", "두괄식  ·  식 없는 경로의 지금 결론")
+    if not pic(s, "summary_executive.png", 40, 140, 1200, 420):
+        add_text(s, 90, 200, 1100, 40, "summary_executive.png 없음", 16, C["red"], True)
     add_text(
         s,
         90,
-        545,
+        575,
         1100,
         40,
-        "다음부터 상세  ·  모티베이션 → 방법 → 실험·한계",
+        "PP/SAAR = equation-free 안전장치  ·  PAE = equation-aware 경로(이번 주결과 아님)  ·  다음: 모티베이션 → 방법 → 실험",
         13,
         C["grey"],
         True,
@@ -433,7 +410,7 @@ def build():
 
     # ===== 6 PP/PAE flow =====
     s = blank(prs)
-    topbar(s, "B", "다시 한 번: 식 유무 분기", "있으면 PAE(식+NN) · 없으면 PP(equation-free)")
+    topbar(s, "B", "이중 경로 분기", "있으면 PAE · 없으면 SAAR(PP) — 외삽의 통합 프레임")
     pic(s, "pp_pae_flow.png", 50, 145, 1180, 380)
     add_text(
         s,
@@ -509,7 +486,7 @@ def build():
 
     # ===== 7 Core idea: why NN fails OOS =====
     s = blank(prs)
-    topbar(s, "B", "문제와 핵심 아이디어", "PP: support-aware residual extrapolation")
+    topbar(s, "B", "문제와 핵심 아이디어", "SAAR: Support-Aware Affine–Residual Extrapolation")
     pic(s, "pp_core_idea.png", 40, 140, 1200, 430)
     add_text(
         s,
@@ -526,13 +503,13 @@ def build():
 
     # ===== 8 Architecture =====
     s = blank(prs)
-    topbar(s, "B", "모형 구조", "affine 기본 경로 + 제한된 residual")
+    topbar(s, "B", "모형 구조", "Frozen Affine + Dual-Scale Residual (SAAR)")
     pic(s, "pp_architecture.png", 40, 135, 1200, 470)
     foot(s, p())
 
     # ===== 8b Equation (one formula) =====
     s = blank(prs)
-    topbar(s, "B", "수식은 하나면 충분", "각 항이 NN 자유도를 어떻게 줄이는가")
+    topbar(s, "B", "SAAR 핵심 수식", "softplus + dual-scale residual이 자유도를 어떻게 줄이는가")
     pic(s, "pp_equation_panel.png", 40, 145, 1200, 400)
     add_text(
         s,
@@ -583,7 +560,7 @@ def build():
 
     # ===== 11 Main results chart =====
     s = blank(prs)
-    topbar(s, "C", "핵심 실험 결과", "같은 구조로 Sunwoda · RWTH · MICH")
+    topbar(s, "C", "핵심 실험 결과 (SAAR)", "같은 구조로 Sunwoda · RWTH · MICH")
     pic(s, "main_ablation_bars.png", 40, 140, 780, 400)
     metric = [
         ("평균", "0.842", "최고 0.934", C["teal"]),
@@ -613,282 +590,55 @@ def build():
     # ===== 11a Status update (Sep 2026) =====
     s = blank(prs)
     topbar(s, "C", "최신 업데이트 (2026-09)", "무엇이 바뀌었고, 무엇을 아직 주장하지 않나")
-    rows = [
-        ("유지", "SAAR / dual-scale BQ", "Sunwoda·RWTH·MICH 0.934 / 0.842 / 0.751\n논문 1편의 주 executor", C["teal"]),
-        ("확장", "Na / Zn-ion", "BQ만으로는 Zn untouched 실패 →\nRBF-regime·refit으로 개발 점수 회복", C["blue"]),
-        ("교차", "XJTU · FEMTO · Milling", "구조 복구·입력 감사 단계\n통합 우월성 주장 전 아님", C["orange"]),
-        ("경계", "PAE / 저널", "결과 표는 PP만 · PAE 라우팅 실험 없음\n분야 Q1–Q2가 현실 본선", C["navy"]),
-    ]
-    for i, (tag, title, body, col) in enumerate(rows):
-        x = 70 + (i % 2) * 590
-        y = 155 + (i // 2) * 230
-        rect(s, x, y, 560, 205, C["white"], C["line"], True)
-        rect(s, x, y, 560, 48, col)
-        add_text(s, x + 20, y + 12, 80, 24, tag, 14, C["white"], True)
-        add_text(s, x + 110, y + 12, 420, 24, title, 15, C["white"], True)
-        add_text(s, x + 24, y + 70, 510, 110, body, 15, C["ink"])
+    pic(s, "status_update.png", 40, 140, 1200, 480)
     foot(s, p())
 
     # ===== 11a2 Zn-ion path =====
     s = blank(prs)
     topbar(s, "C", "Zn-ion에서 무엇이 달라졌나", "실패 → 경로 분기 → 개발 개선 (확증 아님)")
-    steps = [
-        ("1", "BQ-PP", "untouched Zn\n실패 (≈ −0.38)", C["red"]),
-        ("2", "RBF-regime", "장수명 memory\n+ BQ 혼합", C["orange"]),
-        ("3", "α / refit", "강한 shrinkage +\nfull-dev refit", C["blue"]),
-        ("4", "개발 점수", "Zn ≈ 0.91\nNa ≈ 0.82", C["teal"]),
-    ]
-    for i, (sn, sh, sb, scol) in enumerate(steps):
-        x = 70 + i * 300
-        rect(s, x, 180, 275, 220, C["white"], C["line"], True)
-        rect(s, x, 180, 275, 52, scol)
-        add_text(s, x + 18, 192, 40, 28, sn, 18, C["white"], True)
-        add_text(s, x + 55, 196, 200, 28, sh, 16, C["white"], True)
-        add_text(s, x + 20, 260, 235, 110, sb, 16, C["ink"])
-        if i < 3:
-            arrow(s, x + 278, 270, 18, 22, C["line"])
-    rect(s, 70, 440, 1140, 140, C["wash"], None, True)
-    add_text(
-        s,
-        95,
-        460,
-        1090,
-        100,
-        "주의  ·  0.91/0.82는 이미 본 test에 대한 사후 개발 결과. 새 untouched 확증으로 쓰지 않음.\n"
-        "개선의 큰 축은 새 NN 구조만이 아니라 ridge shrinkage와 validation을 포함한 standard refit 계약.\n"
-        "RBF+BQ 혼합은 margin=0 경계를 항상 보장하지 않음 → 다음 후보: quotient 안 결합(Dynamic Boundary-Scale).",
-        14,
-        C["ink"],
-    )
+    pic(s, "zn_ion_pathway.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # ===== 11a3 Why numbers moved =====
     s = blank(prs)
     topbar(s, "C", "점수가 오른 이유 — 정직하게", "구조 혁신 vs 학습 계약·수축")
-    cards = [
-        ("구조로 설명되는 것", "SAAR dual-scale로\nMICH 최저점 회복\n(고정 bound 0.468→0.751)\n\nZn에서 lifetime 경로\n추가로 BQ 단독 실패 보완", C["teal"]),
-        ("계약·조율로 오른 것", "α=1000 affine shrinkage\nfull-development refit\n(같은 epoch로 val prefix 포함)\n\n같은 refit을 MLP에도\n줘야 공정 비교", C["orange"]),
-        ("아직 분리 안 된 것", "RBF memory 정보량 vs\nNN residual 기여\n\n공정 NN 대조·nested\nunit CV·표본 수", C["red"]),
-    ]
-    for i, (h, b, a) in enumerate(cards):
-        card(s, 70 + i * 390, 175, 370, 340, h, b, a)
-    add_text(
-        s,
-        90,
-        545,
-        1100,
-        40,
-        "발표/논문 멘트: ‘모델이 통째로 한 단계 진화’보다 ‘어디서 구조가, 어디서 계약이 이득인지’를 분리한다.",
-        14,
-        C["crimson"],
-        True,
-    )
+    pic(s, "score_attribution.png", 40, 140, 1200, 480)
     foot(s, p())
 
     # ===== 11a4 Cross-domain =====
     s = blank(prs)
     topbar(s, "C", "교차 도메인 현황", "배터리 밖 — 복구·감사 중, 통합 성공 아님")
-    headers = ["도메인", "상태", "핵심 수치/사실", "주장"]
-    rows = [
-        ["XJTU", "개발 개선", "progress+scale transport ≈ 0.257\n(기존 Ridge −0.84)", "post-test 개발. 독립 확증 아님"],
-        ["FEMTO", "판정 보류/실패", "잘못된 진동 채널 발견\n교정 후 PP 구조들 채택 실패", "우월 실패가 아니라 설계 미성숙"],
-        ["Milling", "감사", "일부 양수 점수는 수식 보정\nNN 경로 꺼진 경우 있음", "NN 기여와 보정 기여 분리 필요"],
-        ["정보 한계", "이론", "비슷한 prefix + 다른 Z면\n어떤 f(H)도 한계", "안 보이는 lifetime을 복원하지 않음"],
-    ]
-    xs = [60, 220, 420, 860]
-    ws = [150, 180, 420, 340]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 150, ws[i], 24, h, 13, C["navy"], True)
-    for ri, row in enumerate(rows):
-        y = 185 + ri * 85
-        bg = C["wash"] if ri % 2 == 0 else C["white"]
-        rect(s, 50, y - 8, 1180, 75, bg, C["line"], True)
-        for i, val in enumerate(row):
-            add_text(s, xs[i], y + 5, ws[i], 60, val, 13, C["ink"])
+    pic(s, "cross_domain_status.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # ===== 11b Ablation overview =====
     s = blank(prs)
     topbar(s, "C", "Ablation — 무엇이 성능을 만드나", "구성요소 on/off (개발 3데이터 + 대표 설정)")
-    headers = ["기능", "제거하면", "켠 효과(요지)", "해석"]
-    rows = [
-        ["NN residual", "affine only", "MICH −3.3→0.47 등", "직선만으로는 부족"],
-        ["Affine 동결", "trainable 경계NN", "세 데이터 모두 ↑", "NN이 tail 덮는 것 억제"],
-        ["Residual bound", "unbounded", "Sun/RWTH ↑, MICH ↓", "조건부 — dual-scale로 보완"],
-        ["Dual-scale gate", "고정 bound", "MICH 0.47→0.75", "이질 regime에서 용량 확대"],
-        ["Rate history", "margin만", "Sun/RWTH 큰 ↑", "MICH는 단순 history가 유리한 반례"],
-        ["Transport/gate", "always-on", "HUST·MATRb2 ↑", "증거 없으면 모듈 거절"],
-    ]
-    xs = [70, 280, 520, 820]
-    ws = [200, 220, 280, 360]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 150, ws[i], 24, h, 12, C["navy"], True)
-    for ri, row in enumerate(rows):
-        y = 185 + ri * 55
-        bg = C["wash"] if ri % 2 == 0 else C["white"]
-        rect(s, 60, y - 8, 1160, 50, bg, C["line"], True)
-        for i, val in enumerate(row):
-            add_text(s, xs[i], y, ws[i], 32, val, 12, C["ink"], i == 0)
-    add_text(
-        s,
-        90,
-        540,
-        1100,
-        55,
-        "주장: ‘모든 부품이 모든 데이터에서 항상 이긴다’가 아니라,\n"
-        "frozen affine + residual이 핵심이고, bound·history·transport는 regime에 따라 승인한다.",
-        13,
-        C["crimson"],
-        True,
-    )
+    pic(s, "ablation_overview.png", 40, 135, 1200, 500)
     foot(s, p())
 
     # ===== 11b2 Gate on/off =====
     s = blank(prs)
     topbar(s, "C", "게이트 효과는 어떻게 확인하나", "넣었다 뺐다(on/off) = 표준 ablation")
-    card(
-        s,
-        70,
-        155,
-        380,
-        280,
-        "하는 방식",
-        "같은 split·같은 모델에서\n① 게이트 끔(always-on)\n② 게이트 켬(val 증거 있을 때만)\n차이를 비교",
-        C["teal"],
-    )
-    card(
-        s,
-        470,
-        155,
-        380,
-        280,
-        "우리 결과",
-        "13개 설정 감사:\n개선 3 · 유지 10 · 악화 0\n항상 켜면 Virkler 등 악화\n(−5.37→−6.56)",
-        C["orange"],
-    )
-    card(
-        s,
-        870,
-        155,
-        340,
-        280,
-        "해석",
-        "게이트는 평균 R²를\n직접 올리는 부품보다\n틀린 모듈을 막아\n기본 PP를 지키는 역할",
-        C["navy"],
-    )
-    add_text(
-        s,
-        90,
-        460,
-        1100,
-        90,
-        "보통 맞음: 효과 주장은 on/off(또는 matched arm)로 확인한다.\n"
-        "다만 ‘모든 shift를 잡는다’까지는 못 씀 — MICH history는 val이 full을 골랐는데 test는 단순 history가 더 나은 반례.\n"
-        "원문: FINAL_PP_COMPONENT_ABLATION_RESULTS_KO.md (Evidence gate ablation)",
-        13,
-        C["ink"],
-        True,
-    )
+    pic(s, "gate_effect.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # ===== 11b3 Why condition fit =====
     s = blank(prs)
     topbar(s, "C", "조건 적합도가 왜 필요한가", "밖의 점수를 미리 알 수는 없다")
-    card(
-        s,
-        70,
-        160,
-        370,
-        300,
-        "할 수 없는 것",
-        "테스트 정답을 보기 전에\n‘이번엔 R²가 몇이다’를\n맞춰 맞히는 일",
-        C["red"],
-    )
-    card(
-        s,
-        460,
-        160,
-        370,
-        300,
-        "할 수 있는 것",
-        "관측만으로 검사:\n이 문제에 SAAR를\n써도 되는가?\n안 되면 숫자를 내지 않기",
-        C["teal"],
-    )
-    card(
-        s,
-        850,
-        160,
-        360,
-        300,
-        "최종 출력",
-        "예측 숫자\n+\n적용 가능 증명\n+\n거리·불확실성",
-        C["navy"],
-    )
-    add_text(
-        s,
-        90,
-        490,
-        1100,
-        80,
-        "한 줄: 적합도는 ‘잘 맞힐 보증서’가 아니라 ‘이 가정으로 말해도 되는가’의 허가증이다.\n"
-        "허가 없이 점수만 내면, 외삽에서 틀린 확신을 주는 것과 같다.",
-        14,
-        C["crimson"],
-        True,
-    )
+    pic(s, "applicability_why.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # ===== 11b4 Applicability checks (clearer) =====
     s = blank(prs)
-    topbar(s, "C", "조건 적합도 6가지 검사", "쉬운 말로 — 무엇을 / 왜 보나")
-    checks = [
-        ("① 문제 타입", "무엇을", "안 본 개체의\n학습 밖 남은수명인가?", "왜", "랜덤 미래예측과\n문제가 다르기 때문", C["teal"]),
-        ("② 관측 계약", "무엇을", "경계·이력·방향이\n실제로 보이는가?", "왜", "없는 prior를 켜면\n가정이 거짓이 됨", C["orange"]),
-        ("③ Val 기술", "무엇을", "검증 끝단에서\n이미 도움이 되나?", "왜", "test 보기 전에\n실력 증거를 남김", C["blue"]),
-        ("④ 거리·안정", "무엇을", "너무 멀거나\n재학습이 흔들리나?", "왜", "멀수록 가정 의존↑\n불안정하면 위험", C["navy"]),
-        ("⑤ 경로 호환", "무엇을", "검증→시험 방향이\n비슷한가?", "왜", "반대면 보정을\n옮기면 안 됨", C["crimson"]),
-        ("⑥ 메커니즘", "무엇을", "재료·고장·센서\n의미가 같은가?", "왜", "다르면 모델이\n다른 현상을 봄", C["green"]),
-    ]
-    for i, (title, a, av, b, bv, col) in enumerate(checks):
-        x = 55 + (i % 3) * 400
-        y = 145 + (i // 3) * 235
-        rect(s, x, y, 385, 220, C["white"], C["line"], True)
-        rect(s, x, y, 385, 38, col)
-        add_text(s, x + 12, y + 7, 360, 26, title, 14, C["white"], True)
-        add_text(s, x + 12, y + 50, 70, 24, a, 12, col, True)
-        add_text(s, x + 80, y + 48, 290, 70, av, 13, C["ink"])
-        add_text(s, x + 12, y + 130, 70, 24, b, 12, C["grey"], True)
-        add_text(s, x + 80, y + 128, 290, 70, bv, 13, C["grey"])
+    topbar(s, "C", "조건 적합도 6가지 검사", "허가증 — 무엇을 / 왜 보나")
+    pic(s, "applicability_checks.png", 40, 135, 1200, 520)
     foot(s, p())
 
     # ===== 11b5 Fit decision clearer =====
     s = blank(prs)
     topbar(s, "C", "적합도 판정 — 세 갈래", "Pass / Weak / Fail")
-    steps = [
-        ("Pass", "써도 된다", "6항이 대체로 통과\nval에서 실력도 확인", "→ SAAR 예측을 보고\n거리·불확실성과 함께 제시", C["teal"]),
-        ("Weak", "조심해서", "문제는 맞지만\n거리 큼·증거 얇음", "→ 보정 줄이거나\n직선(identity)만 유지", C["orange"]),
-        ("Fail", "쓰지 않는다", "메커니즘이 다르거나\nval에서 이미 실패", "→ ABSTAIN\n숫자를 내지 않음", C["red"]),
-    ]
-    for i, (tag, sub, mid, out, col) in enumerate(steps):
-        x = 70 + i * 390
-        rect(s, x, 150, 370, 340, C["white"], col, True)
-        rect(s, x, 150, 370, 70, col)
-        add_text(s, x + 15, 158, 340, 28, tag, 20, C["white"], True, "center")
-        add_text(s, x + 15, 188, 340, 24, sub, 13, C["white"], True, "center")
-        add_text(s, x + 20, 245, 330, 90, mid, 14, C["ink"], False, "center")
-        add_text(s, x + 20, 360, 330, 100, out, 14, col, True, "center")
-    add_text(
-        s,
-        90,
-        520,
-        1100,
-        70,
-        "사례: milling 재료 1→2 → Fail(정답 없이 거절).  ·  plain MICH → coverage만으로 Pass 하면 안 됨(관계 이동).\n"
-        "Sunwoda는 잘 나와도, 게이트를 엄하게 두면 Weak로 보수 운용 가능. 적합도 = 정확도 보증 아님.",
-        13,
-        C["ink"],
-        True,
-    )
+    pic(s, "fit_decision.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # ===== 11b6 Everyday analogy =====
@@ -931,36 +681,7 @@ def build():
     # ===== 11c Ablation numbers =====
     s = blank(prs)
     topbar(s, "C", "Ablation 수치 (matched)", "Sunwoda / RWTH / MICH ensemble R²")
-    headers = ["Arm", "Sunwoda", "RWTH", "MICH"]
-    rows = [
-        ["Direct NN (구조 없음)", "−1.35", "0.63", "0.68"],
-        ["Affine only", "0.28", "0.66", "−3.34"],
-        ["Trainable hard-boundary", "0.90", "0.86", "0.32"],
-        ["Frozen + unbounded", "0.72", "0.79", "0.76"],
-        ["BQ bounded (고정)", "0.94", "0.88", "0.47"],
-        ["최종 dual-scale SAAR", "0.93", "0.84", "0.75"],
-    ]
-    xs = [100, 420, 650, 880]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 155, 200, 24, h, 13, C["navy"], True)
-    for ri, row in enumerate(rows):
-        y = 195 + ri * 52
-        bg = C["wash"] if ri == 5 else (C["white"] if ri % 2 else C["pale"])
-        rect(s, 80, y - 8, 1120, 48, bg, C["teal"] if ri == 5 else C["line"], True)
-        for i, val in enumerate(row):
-            add_text(s, xs[i], y, 220, 30, val, 13, C["teal"] if ri == 5 else C["ink"], ri == 5 or i == 0)
-    add_text(
-        s,
-        90,
-        530,
-        1100,
-        60,
-        "고정 bound는 MICH에서 unbounded보다 낮음(−0.29) → dual-scale이 worst-domain을 회복.\n"
-        "원문: FINAL_PP_COMPONENT_ABLATION_RESULTS_KO.md · UNIFIED_SUPPORT_GATED_PP_RESULTS_KO.md",
-        12,
-        C["grey"],
-        True,
-    )
+    pic(s, "ablation_numbers.png", 40, 135, 1200, 500)
     foot(s, p())
 
     # ===== 12 MICH units =====
@@ -1233,29 +954,7 @@ def build():
     # A3b dataset catalog
     s = blank(prs)
     topbar(s, "Apx", "데이터셋 한눈에", "도메인 · 무엇을 추론하나 · 외삽 타입")
-    rows = [
-        ("HUST", "배터리", "RUL", "안 본 프로토콜의\n깊은 미래/끝단", "잘 됨 · 0.96"),
-        ("Virkler", "균열", "잔여 수명", "안 본 시편의\n균열 성장 끝단", "잘 됨 · 0.89"),
-        ("NASA bat.", "배터리", "RUL", "건강도 끝단\n(LOBO 집계)", "잘 됨 · 0.58"),
-        ("Sunwoda", "배터리", "RUL", "안 본 셀\n늦은 health", "잘 됨 · 0.87"),
-        ("RWTH", "배터리", "RUL", "안 본 셀\n늦은 health", "잘 됨 · 0.74"),
-        ("MICH", "배터리", "RUL", "안 본 셀\n새 regime", "통합 후 0.75"),
-        ("MATR19/b2", "배터리", "RUL", "안 본 셀\n먼/가까운 꼬리", "보정 후 양수"),
-        ("N-CMAPSS", "엔진", "RUL", "안 본 엔진\n× 고부하 × 만기", "잘 됨 · 0.94"),
-    ]
-    headers = ["데이터", "도메인", "추론", "스플릿·외삽", "결과 요지"]
-    xs = [70, 220, 380, 520, 900]
-    ws = [140, 150, 130, 360, 280]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 145, ws[i], 22, h, 11, C["navy"], True)
-    for ri, row in enumerate(rows):
-        y = 175 + ri * 48
-        bg = C["wash"] if ri % 2 == 0 else C["white"]
-        rect(s, 60, y - 6, 1160, 44, bg, C["line"], True)
-        for i, val in enumerate(row):
-            col = C["teal"] if i == 4 else C["ink"]
-            add_text(s, xs[i], y, ws[i], 32, val, 11, col, i == 0)
-    add_text(s, 90, 575, 1100, 30, "실패 축(별도): XJTU · FEMTO · NASA milling — 아래 ‘언제 되나’ 슬라이드 참고", 12, C["crimson"], True)
+    pic(s, "dataset_catalog.png", 40, 135, 1200, 520)
     foot(s, p())
 
     # A3b2 what each dataset is
@@ -1397,148 +1096,32 @@ def build():
     # A3 fit conditions appendix
     s = blank(prs)
     topbar(s, "Apx", "조건 적합도 체크리스트", "허가증이지 성적표가 아니다")
-    rows = [
-        ["① 문제", "안 본 개체 + 학습 밖 RUL인가?", "같은 개체 미래만 / 랜덤 split"],
-        ["② 계약", "쓰는 prior에 필요한 관측이 있나?", "없는 경계·방향 강제"],
-        ["③ Val", "검증 끝단에서 이미 도움이 되나?", "test만 보고 채택"],
-        ["④ 안정", "거리·seed가 허용 범위인가?", "너무 멀거나 재학습 붕괴"],
-        ["⑤ 호환", "검증→시험 이동이 비슷한가?", "방향 반대·관계 급변"],
-        ["⑥ 메커니즘", "재료·고장·센서 의미가 같은가?", "다른 현상을 같은 모델에"],
-    ]
-    headers = ["검사", "통과 조건 (쉬운 말)", "실패하면"]
-    xs = [70, 250, 780]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 148, 480, 24, h, 13, C["navy"], True)
-    for ri, row in enumerate(rows):
-        y = 185 + ri * 52
-        rect(s, 60, y - 8, 1160, 48, C["wash"] if ri % 2 == 0 else C["white"], C["line"], True)
-        for i, val in enumerate(row):
-            col = C["teal"] if i == 1 else (C["red"] if i == 2 else C["ink"])
-            add_text(s, xs[i], y, 500 if i else 160, 30, val, 12, col, i == 0)
-    add_text(
-        s,
-        90,
-        520,
-        1100,
-        55,
-        "판정: Pass=예측 사용 · Weak=보정 축소/identity · Fail=ABSTAIN.\n"
-        "출력은 숫자만이 아니라 적용증명·거리·불확실성을 함께. 원문: APPLICABILITY_NOVELTY_LIMITS_KO.md",
-        12,
-        C["grey"],
-        True,
-    )
+    pic(s, "applicability_checklist.png", 40, 135, 1200, 520)
     foot(s, p())
 
     # A4 method detail
     s = blank(prs)
-    topbar(s, "Apx", "방법 상세 (최종 PP)", "수식 하나 + 공용 구조")
-    add_text(s, 90, 155, 1100, 36, "ŷ = ŷ_affine + w(d) · B tanh(r_θ(x)/B)", 20, C["ink"], True, "center")
-    left = [
-        "ŷ_affine: 관측 밖에서도 폭주하지 않는 기본 추세",
-        "r_θ(x): history에서 학습한 비선형 보정",
-        "B tanh(·/B): 보정 크기 상한",
-        "w(d): support에서 멀수록 NN 보정 감쇠",
-        "공용: affine + bounded residual + gate",
-        "데이터별: 계수·NN·범위·gate 강도만 학습",
-    ]
-    for i, t in enumerate(left):
-        y = 210 + i * 48
-        rect(s, 90, y + 8, 10, 10, C["teal"], None, True)
-        add_text(s, 115, y, 520, 35, t, 14, C["ink"])
-    right = [
-        "배터리 열화식 사전 주입 아님",
-        "도메인별은 입력 표현만 다름",
-        "재학습 시드 42–46 (5회)",
-        "검증 MSE로 설정·조기종료",
-        "주 점수: 테스트 전체 R²",
-        "경계·보정 위반: 0/17,645",
-    ]
-    for i, t in enumerate(right):
-        y = 210 + i * 48
-        rect(s, 680, y + 8, 10, 10, C["orange"], None, True)
-        add_text(s, 705, y, 500, 35, t, 14, C["ink"])
-    add_text(s, 90, 560, 1100, 30, "원문: UNIFIED_SUPPORT_GATED_PP_RESULTS_KO.md · BOUNDARY_QUOTIENT_PP_RESULTS_KO.md", 12, C["grey"])
+    topbar(s, "Apx", "방법 상세 (최종 SAAR)", "수식 하나 + 공용 구조")
+    pic(s, "method_saar_detail.png", 40, 135, 1200, 520)
     foot(s, p())
 
     # A5 main table
     s = blank(prs)
     topbar(s, "Apx", "표 1. 통합 모델 비교 (개발 3데이터)", "같은 구조·설정을 Sunwoda / RWTH / MICH에 공동 적용")
-    headers = ["모형", "Sunwoda", "RWTH", "MICH", "평균", "최고", "최저"]
-    rows = [
-        ["고정 경계형", "0.939", "0.878", "0.468", "0.762", "0.939", "0.468"],
-        ["보정 제한 없음", "0.718", "0.788", "0.759", "0.755", "0.788", "0.718"],
-        ["전체 적응형", "0.719", "0.738", "0.746", "0.734", "0.746", "0.719"],
-        ["거리 기반 보정", "0.894", "0.800", "0.736", "0.810", "0.894", "0.736"],
-        ["최종 모델", "0.934", "0.842", "0.751", "0.842", "0.934", "0.751"],
-    ]
-    xs = [55, 300, 430, 550, 680, 820, 960]
-    ws = [230, 110, 100, 100, 110, 110, 110]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 165, ws[i], 24, h, 12, C["navy"], True, "center" if i else "left")
-    for ri, row in enumerate(rows):
-        y = 205 + ri * 55
-        bg = C["wash"] if ri == 4 else C["white"]
-        rect(s, 50, y - 8, 1160, 48, bg, C["teal"] if ri == 4 else C["line"], True)
-        for i, val in enumerate(row):
-            add_text(s, xs[i], y, ws[i], 28, val, 13, C["teal"] if ri == 4 and i else C["ink"], ri == 4, "center" if i else "left")
-    add_text(
-        s,
-        90,
-        500,
-        1100,
-        40,
-        "해석: 최종 모델은 평균·최저를 같이 올림. 최고는 고정 경계형(0.939)과 비슷하나, 최저(0.751 vs 0.468)에서 차이.",
-        13,
-        C["ink"],
-        True,
-    )
-    add_text(s, 90, 555, 1100, 30, "원문: UNIFIED_SUPPORT_GATED_PP_RESULTS_KO.md · results/bq_dual_scale_final_replay_v1/", 12, C["grey"])
+    pic(s, "unified_model_table.png", 40, 135, 1200, 500)
     foot(s, p())
 
     # A6 positive 8
     s = blank(prs)
     topbar(s, "Apx", "표 2. 잘 된 8곳 — 알고리즘별 R²", "TabPFN 8곳 전체 반영")
-    headers = ["데이터", "PP", "V-REx", "G-DRO", "Mono", "LinRBF", "Engr.", "GP", "TabPFN"]
-    rows = [
-        ["HUST", "0.958", "0.809", "0.934", "0.822", "0.710", "0.878", "-0.32", "0.218"],
-        ["Virkler", "0.888", "0.583", "0.554", "0.565", "0.805", "0.552", "0.54", "0.621"],
-        ["NASA", "0.584", "0.285", "0.286", "0.283", "0.550", "0.549", "0.44", "-0.69"],
-        ["Sunwoda", "0.865", "-0.24", "-0.30", "-0.05", "0.838", "0.619", "-1.60", "-0.89"],
-        ["RWTH", "0.743", "0.645", "0.602", "-0.01", "0.385", "0.526", "-0.47", "-2.18"],
-        ["MATR19", "0.466", "0.044", "0.272", "0.018", "-2.64", "-0.73", "-2.46", "0.202"],
-        ["MATRb2", "0.862", "0.850", "0.777", "0.674", "-0.78", "0.739", "0.21", "0.618"],
-        ["NCMAPSS", "0.937", "0.883", "0.880", "0.892", "0.819", "0.932", "0.80", "0.934*"],
-    ]
-    xs = [55, 200, 320, 430, 540, 650, 770, 880, 1000]
-    for i, h in enumerate(headers):
-        add_text(s, xs[i], 148, 110, 22, h, 10, C["navy"], True)
-    for ri, row in enumerate(rows):
-        y = 178 + ri * 40
-        for i, val in enumerate(row):
-            col = C["teal"] if i == 1 else C["ink"]
-            add_text(s, xs[i], y, 120 if i == 0 else 100, 26, val, 11, col, i == 1)
-    add_text(s, 90, 515, 1100, 55, "TabPFN: FAIR_PFN(HUST/Virkler/NASA) · TABPFN_EXTERNAL(Sunwoda/RWTH/MATRb2) · EXTENDED_NN(MATR19) · NCMAPSS(*단일 seed).", 11, C["grey"])
-    add_text(s, 90, 570, 1100, 25, "보조 비교(train 상한). MATRb2는 TabPFN이 기본 PP보다 높을 수 있어 그 분할만으로 PP 우위를 주장하지 않음.", 11, C["crimson"])
+    pic(s, "competitor_bars.png", 40, 130, 1200, 420)
+    add_text(s, 90, 560, 1100, 40, "보조 비교(train 상한). MATRb2만으로 PP 우위를 주장하지 않음.", 12, C["crimson"], True)
     foot(s, p())
 
     # A7 failures
     s = blank(prs)
     topbar(s, "Apx", "표 3. 실패 설정 — 적용 한계", "모든 방법이 음수인 경우도 논문에 남긴다")
-    fails = [
-        ("MICH (기본 PP)", "−1.522", "보정이 거의 안 켜짐\n형태/관계 실패\n→ 경계형으로 일부 회복", C["red"]),
-        ("XJTU", "−1.229", "검증과 테스트의\n이동 방향이 반대\n→ 옮기지 않는 게 맞음", C["orange"]),
-        ("FEMTO", "−1.378", "베어링당 끝점 1개\n유닛 점수 정의 어려움", C["blue"]),
-        ("NASA milling", "−4.826", "검증 유닛이 너무 적음\n나눔 자체가 불안정", C["navy"]),
-    ]
-    for i, (h, v, b, a) in enumerate(fails):
-        x = 75 + i * 295
-        rect(s, x, 175, 280, 300, C["white"], C["line"], True)
-        rect(s, x, 175, 280, 8, a)
-        add_text(s, x + 14, 200, 250, 40, h, 14, C["ink"], True)
-        add_text(s, x + 14, 250, 250, 36, v, 24, a, True)
-        add_text(s, x + 14, 310, 250, 140, b, 13, C["grey"])
-    add_text(s, 90, 520, 1100, 50, "원문: ADDITIONAL_REAL_DATASETS_RESULTS_KO.md · XJTU_UNTOUCHED_RESULTS_KO.md · FEMTO_PP_PROSPECTIVE_RESULTS_KO.md · MILLING_LOCKED_RESULTS.md", 12, C["grey"])
-    add_text(s, 90, 575, 1100, 30, "논문 메시지: 실패를 숨기지 않고, ‘언제 거절해야 하는지’의 근거로 쓴다.", 14, C["crimson"], True)
+    pic(s, "fail_cases.png", 40, 140, 1200, 480)
     foot(s, p())
 
     # A8 mich recovery
@@ -1553,19 +1136,13 @@ def build():
     # A9 stats paper style
     s = blank(prs)
     topbar(s, "Apx", "통계 근거 (Results 보강)", "알고리즘 안정성 + 유닛 단위 효과")
-    card(s, 80, 165, 560, 280, "재학습 합의 규칙", "보정 채택을 5번 재학습 투표로 봄\n5/5일 때만 승인 (단측 p=0.031)\n4/5는 거절\n\n주의: 물리 반복실험이 아니라\n초기화 안정성 검정", C["teal"])
-    card(s, 680, 165, 520, 280, "유닛 짝 비교 (20,000회)", "HUST  −25.2  [−34.4, −14.5]\nRWTH  −23.3  [−41.8, −8.9]\nMATR  −10.6  [−15.7, −6.4]\n\n세 곳 모두 신뢰구간이 0 아래\n= 긴 시퀀스 몇 개만의 착시 아님", C["blue"])
-    add_text(s, 90, 480, 1100, 40, "안전성 감사: 7곳 중 3곳 개선 · 4곳 그대로 · 악화 0", 15, C["ink"], True)
-    add_text(s, 90, 530, 1100, 40, "원문: STATISTICAL_NOVELTY_EVIDENCE_KO.md · results/consensus_statistical_audit_v1/", 12, C["grey"])
-    add_text(s, 90, 575, 1100, 30, "도메인 수가 적어 ‘모든 분야에서 유의’라고 쓰면 안 된다.", 13, C["red"], True)
+    pic(s, "stats_evidence.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # A10 contributions
     s = blank(prs)
     topbar(s, "Apx", "기여 / 비기여 (논문 경계)", "심사에서 바로 물어보는 것")
-    card(s, 80, 165, 560, 360, "기여로 쓸 수 있는 것", "1) 개체 분리 + 범위 밖 남은수명 문제 정의\n2) 고정 기본경향 + 제한 보정 예측기\n3) 검증으로만 승인하는 보정 옮기기\n4) 실패·거절까지 포함한 실험 지도", C["teal"])
-    card(s, 680, 165, 520, 360, "기여로 쓰면 안 되는 것", "최초 물리–신경망 혼합\n최초 affine+residual\n최초 범위 밖 평가\n모든 도메인 1등\n보정=이론적 안전 보증", C["red"])
-    add_text(s, 90, 560, 1100, 30, "원문: NOVELTY_LITERATURE_AUDIT_KO.md · BQ_PP_NOVELTY_AUDIT_KO.md · PP_FIRST_PUBLICATION_CLAIMS_KO.md", 12, C["grey"])
+    pic(s, "claim_boundary.png", 40, 140, 1200, 500)
     foot(s, p())
 
     # A11 reading list / file index
