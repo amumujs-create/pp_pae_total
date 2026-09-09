@@ -162,27 +162,27 @@ def build():
     rect(s, 72, 78, 88, 5, C["white"])
     add_text(s, 72, 42, 360, 24, "KOREA UNIVERSITY", 14, C["white"], True)
     add_text(s, 72, 155, 560, 110, "PP EXTRAPOLATION\nRESEARCH BRIEFING", 38, C["white"], True)
-    add_text(s, 76, 310, 520, 70, "SAAR 주결과 · Zn/교차도메인 업데이트 ·\n주장 경계 · 다음에 할 일", 18, C["pink"])
+    add_text(s, 76, 300, 520, 80, "최종 목표: 가정 인지형 외삽 프레임워크\n(PAE → PP → Assurance)\n지금은 그중 PP 단계를 연구한다", 17, C["pink"])
     add_text(s, 76, 420, 500, 28, "남은수명 · 배터리 · 베어링 · 공구 상태예측", 14, C["rose"])
-    add_text(s, 76, 560, 400, 50, "Smart Production Systems Lab.\nPP 연구 발표자료 (v2 갱신)", 14, C["white"])
+    add_text(s, 76, 560, 420, 50, "Smart Production Systems Lab.\n두괄식 요약 뒤 상세 전개", 14, C["white"])
     add_text(s, 76, 650, 200, 20, "2026-09", 12, C["rose"])
     p()
 
     # ===== 2 Agenda =====
     s = blank(prs)
-    topbar(s, "00", "발표 구성", "본문 A–D  ·  상세 근거와 원문은 Appendix")
+    topbar(s, "00", "발표 구성", "큰그림 → PP 요약 → 모티베이션부터 상세")
     items = [
-        ("A", "문제 설정", "외삽 바운더리와\n연구 범위", C["orange"]),
-        ("B", "방법론", "SAAR 구조와\n공용 prior", C["teal"]),
-        ("C", "실증·업데이트", "3배터리 + Zn·\n교차도메인 현황", C["blue"]),
-        ("D", "전망", "논문 타깃·PAE\n경계·부록", C["navy"]),
+        ("0", "큰그림", "최종 goal\nPP·PAE·Assurance", C["crimson"]),
+        ("1", "PP 요약", "두괄식 한 장\n지금 단계 결론", C["teal"]),
+        ("A–C", "상세", "모티베이션→방법\n→실험·한계", C["blue"]),
+        ("D", "전망", "논문·PAE·\n다음에 할 일", C["navy"]),
     ]
     for i, (letter, title, body, col) in enumerate(items):
         x = 85 + i * 290
         rect(s, x, 200, 265, 240, C["white"], C["line"], True)
         rect(s, x, 200, 265, 64, col)
-        add_text(s, x + 20, 214, 40, 28, letter, 22, C["white"], True)
-        add_text(s, x + 60, 218, 180, 30, title, 18, C["white"], True)
+        add_text(s, x + 16, 214, 60, 28, letter, 18, C["white"], True)
+        add_text(s, x + 70, 218, 180, 30, title, 18, C["white"], True)
         add_text(s, x + 22, 300, 220, 90, body, 16, C["ink"])
         if i < 3:
             arrow(s, x + 268, 300, 18, 22, C["line"])
@@ -193,12 +193,131 @@ def build():
         520,
         1050,
         40,
-        "요지  ·  논문 주모델은 SAAR. Zn·베어링은 확장·한계 보고. PAE 결과와는 아직 안 겹침.",
+        "읽는 법  ·  앞장에서 목적지와 PP 결론을 먼저 보고, 이어서 ‘왜·어떻게·얼마큼’을 따라간다.",
         16,
         C["ink"],
         True,
     )
     foot(s, p())
+
+    # ===== 2b Final goal big picture =====
+    s = blank(prs)
+    topbar(s, "0", "최종으로 만들고 싶은 것", "가정 인지형 외삽: Compile → Execute → Assure")
+    # pipeline cards
+    pipe = [
+        ("관측·지식", "데이터·이력·경계\n도메인 지식", C["grey"]),
+        ("PAE\nCompile", "무엇을 prior로\n써도 되는가\n(식 / 약함 / 없음)", C["orange"]),
+        ("Executor", "강한 식 · 제약\n또는 PP(약 prior)\n또는 prior-off", C["blue"]),
+        ("Assurance", "거리·불확실성\n검증 오차 전달\n믿기 / 보류", C["navy"]),
+    ]
+    for i, (h, b, col) in enumerate(pipe):
+        x = 55 + i * 305
+        rect(s, x, 155, 285, 200, C["white"], C["line"], True)
+        rect(s, x, 155, 285, 58, col)
+        add_text(s, x + 14, 168, 255, 40, h, 15, C["white"], True, "center")
+        add_text(s, x + 16, 230, 250, 100, b, 14, C["ink"])
+        if i < 3:
+            arrow(s, x + 288, 240, 16, 22, C["line"])
+    rect(s, 55, 385, 1170, 200, C["wash"], None, True)
+    add_text(s, 80, 405, 1100, 28, "박사과정이 향하는 한 줄", 14, C["crimson"], True)
+    add_text(
+        s,
+        80,
+        440,
+        1100,
+        120,
+        "관측으로 정당화되는 가정만 골라(PAE), 그 가정을 안전하게 실행하고(PP 등),\n"
+        "근거가 부족하면 불확실성·보류로 보고한다(Assurance).\n"
+        "목표는 ‘만능 예측기 하나’가 아니라, 가정의 강도를 관측에 맞춰 조절하는 시스템이다.",
+        15,
+        C["ink"],
+    )
+    foot(s, p())
+
+    # ===== 2c Roadmap: now PP =====
+    s = blank(prs)
+    topbar(s, "0", "그중 지금 어디인가", "최종 goal의 한 단계 — 현재는 PP")
+    stages = [
+        ("지금", "PP 논문", "약한 prior가 이미\n허용된다고 할 때\nNN이 그걸 망가뜨리지\n않게 외삽 실행", C["teal"], True),
+        ("다음", "PAE 논문", "관측 계약으로\nprior 수준·executor\n선택 / prior-off\nwrong-prior 검증", C["orange"], False),
+        ("통합", "박사논문", "compile→execute\n→assure를 한 줄로\n교차 도메인·regime\n선택적 위험", C["navy"], False),
+    ]
+    for i, (tag, title, body, col, now) in enumerate(stages):
+        x = 80 + i * 390
+        rect(s, x, 170, 360, 320, C["white"], C["crimson"] if now else C["line"], True)
+        rect(s, x, 170, 360, 56, col)
+        add_text(s, x + 20, 184, 100, 28, tag, 14, C["white"], True)
+        add_text(s, x + 110, 184, 230, 28, title, 16, C["white"], True)
+        add_text(s, x + 24, 250, 310, 180, body, 15, C["ink"])
+        if now:
+            add_text(s, x + 24, 440, 310, 30, "← 이번 발표의 범위", 13, C["crimson"], True)
+        if i < 2:
+            arrow(s, x + 362, 300, 24, 26, C["line"])
+    add_text(
+        s,
+        90,
+        530,
+        1100,
+        50,
+        "PP는 미완의 PAE가 아니라 독립 1편이다. PAE는 나중에 PP를 weak-prior executor 중 하나로 호출한다.",
+        14,
+        C["ink"],
+        True,
+    )
+    foot(s, p())
+
+    # ===== 2d PP executive summary (두괄식) =====
+    s = blank(prs)
+    topbar(s, "1", "PP 한 장 요약 (두괄식)", "상세는 뒤에서 — 먼저 결론")
+    rect(s, 70, 145, 1140, 95, C["navy"], None, True)
+    add_text(
+        s,
+        95,
+        165,
+        1090,
+        60,
+        "PP(SAAR) = equation-free 외삽 안전장치.\n"
+        "고정 affine + 제한된 residual로, 학습 밖에서 NN이 함부로 휘지 않게 한다.",
+        16,
+        C["white"],
+        True,
+    )
+    bits = [
+        ("식", "ŷ = m · softplus(ℓ + cθ)\nm: 경계 margin · ℓ: 동결 affine\ncθ: dual-scale bounded residual", C["teal"]),
+        ("주 결과", "Sunwoda / RWTH / MICH\n0.934 / 0.842 / 0.751\n최저점을 살린 tradeoff", C["blue"]),
+        ("주장 범위", "연속 열화·경계 prior가\n맞고 val≈test일 때\n만능 SOTA 주장 안 함", C["orange"]),
+        ("아직", "Zn·베어링은 확장/한계\nPAE 라우팅 결과 없음\n분야 Q1–Q2가 현실 본선", C["crimson"]),
+    ]
+    for i, (h, b, col) in enumerate(bits):
+        x = 70 + (i % 4) * 290
+        y = 270
+        rect(s, x, y, 275, 250, C["white"], C["line"], True)
+        rect(s, x, y, 275, 44, col)
+        add_text(s, x + 14, y + 10, 245, 28, h, 15, C["white"], True)
+        add_text(s, x + 14, y + 60, 245, 170, b, 13, C["ink"])
+    add_text(s, 90, 545, 1100, 40, "다음 장부터  ·  왜 필요한지(모티베이션) → 어떻게 만드는지 → 실험·한계를 순서대로 본다.", 14, C["grey"], True)
+    foot(s, p())
+
+    # ===== 2e Detail divider =====
+    s = blank(prs)
+    for sh in list(s.shapes):
+        sh._element.getparent().remove(sh._element)
+    rect(s, 0, 0, 1280, 720, C["wash"])
+    rect(s, 0, 0, 1280, 8, C["navy"])
+    add_text(s, 90, 250, 1100, 40, "DETAIL", 16, C["orange"], True)
+    add_text(s, 90, 300, 1100, 70, "이제부터 상세", 40, C["ink"], True)
+    add_text(
+        s,
+        90,
+        390,
+        1000,
+        80,
+        "모티베이션 → 연구 바운더리 → SAAR 구조 → 실험 결과·한계",
+        18,
+        C["grey"],
+    )
+    add_text(s, 90, 520, 900, 40, "앞에서 본 결론을 근거로 풀어 쓴다", 15, C["navy"], True)
+    p()
 
     # ===== 3 Motivation visual =====
     s = blank(prs)
