@@ -97,36 +97,77 @@ def title(ax, text, size=13):
 # ── 1 Cover diagram / route ───────────────────────────────────────────────────
 
 def fig_route():
-    fig, ax = plt.subplots(figsize=(12.0, 5.0))
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 5)
+    """Premium decision-route diagram — high contrast, restrained, sharp."""
+    fig, ax = plt.subplots(figsize=(12.2, 5.4))
+    ax.set_xlim(0, 12.2)
+    ax.set_ylim(0, 5.4)
     ax.axis("off")
 
-    def box(x, y, w, h, text, fc=WHITE, ec=INK, tw=11, tc=INK, lw=1.4):
-        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="square,pad=0", facecolor=fc, edgecolor=ec, linewidth=lw))
-        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=tw, color=tc, fontweight="bold", linespacing=1.35)
+    # subtle top wash
+    ax.add_patch(Rectangle((0, 4.85), 12.2, 0.55, facecolor=SOFT, edgecolor="none", zorder=0))
 
-    ax.text(0.4, 4.55, "Assumption-Aware Extrapolation", color=TEAL, fontsize=12, fontweight="bold")
-    ax.text(0.4, 4.15, "밖을 지탱하는 것은 데이터가 아니라 가정이다", color=INK, fontsize=14, fontweight="bold")
+    ax.text(0.45, 5.15, "Assumption-Aware Extrapolation", color=TEAL, fontsize=11,
+            fontweight="bold", va="center")
+    ax.text(0.45, 4.55, "밖을 지탱하는 것은 데이터가 아니라 가정이다",
+            color=INK, fontsize=15, fontweight="bold", va="center")
 
-    box(3.8, 3.05, 4.4, 0.7, "관측  ·  경계  ·  도메인 지식", fc=SOFT, ec=INK)
-    ax.annotate("", xy=(6, 2.75), xytext=(6, 3.05), arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.3))
-    box(3.5, 2.05, 5.0, 0.65, "후보식이 정당화되는가?", fc=NAVY, ec=NAVY, tc=WHITE, tw=12)
+    def card(x, y, w, h, *, fc=WHITE, ec=INK, lw=1.5, accent=None):
+        ax.add_patch(FancyBboxPatch(
+            (x, y), w, h,
+            boxstyle="round,pad=0.012,rounding_size=0.06",
+            facecolor=fc, edgecolor=ec, linewidth=lw, zorder=2,
+        ))
+        if accent is not None:
+            ax.add_patch(Rectangle((x, y), 0.1, h, facecolor=accent, edgecolor="none", zorder=3))
 
-    ax.annotate("", xy=(2.8, 1.55), xytext=(4.6, 2.05), arrowprops=dict(arrowstyle="-|>", color=TEAL, lw=1.5))
-    ax.annotate("", xy=(9.2, 1.55), xytext=(7.4, 2.05), arrowprops=dict(arrowstyle="-|>", color=RED, lw=1.5))
-    ax.text(3.4, 1.75, "YES", color=TEAL, fontsize=11, fontweight="bold")
-    ax.text(8.6, 1.75, "NO", color=RED, fontsize=11, fontweight="bold")
+    # input row — three pills
+    pills = [("관측", 2.4), ("경계", 5.35), ("도메인 지식", 8.3)]
+    for label, x in pills:
+        ax.add_patch(FancyBboxPatch(
+            (x, 3.55), 2.0, 0.55,
+            boxstyle="round,pad=0.01,rounding_size=0.28",
+            facecolor=WHITE, edgecolor=INK, linewidth=1.3, zorder=2,
+        ))
+        ax.text(x + 1.0, 3.825, label, ha="center", va="center", color=INK, fontsize=12, fontweight="bold")
+    for x in [3.4, 6.35, 9.3]:
+        ax.plot([x, 6.1], [3.55, 3.15], color=RULE, lw=1.2, zorder=1)
 
-    box(0.5, 0.55, 4.6, 0.95, "PAE  ·  equation-aware\n식 + 제한 NN  ·  다음", ec=TEAL, tw=11)
-    box(6.9, 0.55, 4.6, 0.95, "SAAR  ·  equation-free  (TODAY)\n동결 affine + dual-scale residual", ec=TEAL, fc=SOFT, tw=11, lw=2.0)
+    card(3.35, 2.25, 5.5, 0.85, fc=NAVY, ec=NAVY, lw=0)
+    ax.text(6.1, 2.675, "후보식이 정당화되는가?", ha="center", va="center",
+            color=WHITE, fontsize=14, fontweight="bold", zorder=4)
 
-    ax.text(6, 0.18, "Assurance  ·  믿기 / 보류 / 거절  →  박사논문에서 두 경로 통합", ha="center", color=MUTED, fontsize=11)
-    title(ax, "연구 루트")
+    ax.annotate("", xy=(2.7, 1.95), xytext=(4.6, 2.25),
+                arrowprops=dict(arrowstyle="-|>", color=TEAL, lw=1.8, mutation_scale=14))
+    ax.annotate("", xy=(9.5, 1.95), xytext=(7.6, 2.25),
+                arrowprops=dict(arrowstyle="-|>", color=RED, lw=1.8, mutation_scale=14))
+    ax.text(3.55, 2.05, "YES", color=TEAL, fontsize=10, fontweight="bold", ha="center")
+    ax.text(8.65, 2.05, "NO", color=RED, fontsize=10, fontweight="bold", ha="center")
+
+    card(0.55, 0.55, 5.0, 1.25, ec=TEAL, lw=1.6, accent=TEAL)
+    ax.text(1.0, 1.45, "PAE", color=TEAL, fontsize=16, fontweight="bold", zorder=4)
+    ax.text(2.05, 1.48, "equation-aware", color=MUTED, fontsize=10, zorder=4)
+    ax.text(1.0, 1.05, "허용된 식 + 제한 NN", color=INK, fontsize=12, zorder=4)
+    ax.text(1.0, 0.72, "다음 논문", color=MUTED, fontsize=11, zorder=4)
+
+    card(6.65, 0.55, 5.0, 1.25, fc="#F0F7F6", ec=TEAL, lw=2.2, accent=TEAL)
+    ax.text(7.1, 1.45, "SAAR", color=TEAL, fontsize=16, fontweight="bold", zorder=4)
+    ax.text(8.35, 1.48, "equation-free", color=MUTED, fontsize=10, zorder=4)
+    ax.add_patch(FancyBboxPatch(
+        (10.35, 1.32), 1.05, 0.32,
+        boxstyle="round,pad=0.01,rounding_size=0.08",
+        facecolor=TEAL, edgecolor="none", zorder=4,
+    ))
+    ax.text(10.875, 1.48, "TODAY", ha="center", va="center", color=WHITE, fontsize=9, fontweight="bold", zorder=5)
+    ax.text(7.1, 1.05, "동결 affine + dual-scale residual", color=INK, fontsize=12, zorder=4)
+    ax.text(7.1, 0.72, "이번 발표 · 논문 1편", color=MUTED, fontsize=11, zorder=4)
+
+    ax.plot([3.05, 6.1], [0.55, 0.28], color=RULE, lw=1.1, zorder=1)
+    ax.plot([9.15, 6.1], [0.55, 0.28], color=RULE, lw=1.1, zorder=1)
+    ax.text(6.1, 0.12, "Assurance   믿기  ·  보류  ·  거절     →     박사논문에서 두 경로 통합",
+            ha="center", va="center", color=MUTED, fontsize=10.5)
+
     save(fig, "research_route.png")
 
-
-# ── 2 Motivation curves (data-like synthetic demo of mechanism) ───────────────
 
 def fig_nn_vs_saar():
     fig, ax = plt.subplots(figsize=(11.5, 5.2))
