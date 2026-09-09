@@ -12,7 +12,7 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.ns import qn
 from pptx.util import Pt
 
-OUT = Path("/Users/baghyeongbae/Desktop/연구/ppt/pp/PP_Research_Detailed_v2.pptx")
+OUT = Path("/Users/baghyeongbae/Desktop/연구/pp_pae_total/output/PP_Research_Detailed_v2.pptx")
 ASSETS = Path("/Users/baghyeongbae/Desktop/연구/ppt/pp/_build")
 FIGS = ASSETS / "figs"
 
@@ -1065,7 +1065,7 @@ def build():
     s = blank(prs)
     topbar(s, "Apx", "자료 지도 — 어디까지 연결되나", "발표 → 실험 원문 → 문헌조사까지 한줄로")
     rows = [
-        ("발표 본문", "ppt/pp/PP_Research_Detailed_v2.pptx", "스토리·그래프·한 줄 메시지"),
+        ("발표 본문", "pp_pae_total/output/PP_Research_Detailed_v2.pptx", "스토리·그래프·한 줄 메시지"),
         ("실험 저장소", "pp-extrapolation/", "프로토콜·결과 md·코드·json"),
         ("문헌 공부", "ppt/외삽자료/ (literec_study)", "50분 발표·통합 ppt·paper_pdfs"),
         ("프레임 초안", "pp_pae_total/ · v7 ppt", "PP–PAE 큰 그림"),
@@ -1527,7 +1527,7 @@ def build():
     ]
     for i, (h, b, a) in enumerate(cards):
         card(s, 90 + i * 380, 200, 350, 220, h, b, a)
-    add_text(s, 90, 480, 1100, 50, "고정본 파일: ppt/pp/PP_Research_Detailed_v2.pptx\n실험 원문 루트: Desktop/연구/pp-extrapolation/", 15, C["ink"], True)
+    add_text(s, 90, 480, 1100, 50, "고정본(단일): pp_pae_total/output/PP_Research_Detailed_v2.pptx\n실험 원문 루트: Desktop/연구/pp-extrapolation/", 15, C["ink"], True)
     add_text(s, 90, 560, 1100, 30, "끝. 새 버전 파일은 만들지 않고 이 파일만 갱신한다.", 13, C["grey"])
     foot(s, p())
 
