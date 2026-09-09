@@ -65,6 +65,7 @@ See [the Korean research-program document](RESEARCH_PROGRAM_KO.md) for the full 
 
 Edit the fixed deck files in place; do not create parallel v3+ copies of the detailed briefing.
 
+
 ## Status
 
 This repository documents the research program. It does not claim that the full compiler–executor–assurance stack has already been implemented or externally validated.
