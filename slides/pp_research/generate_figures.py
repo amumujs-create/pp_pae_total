@@ -300,67 +300,146 @@ def fig_ablation_panel():
     save(fig, "ablation_panel.png")
 
 
-# ── 6 Competitor heatmap + bars (TabPFN included as a peer) ───────────────────
+
+# ── 6 Competitor: journal-style (a) heatmap + (b) dot summary ─────────────────
+
+# Colorblind-safe (Okabe–Ito); avoid red–green
+CB_BLUE = "#0072B2"
+CB_ORANGE = "#E69F00"
+CB_INK = "#222222"
+CB_MUTED = "#666666"
+CB_GRID = "#E8E8E8"
+
+
+def _journal_axes(ax, grid_y=True, grid_x=False):
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color(CB_INK)
+    ax.spines["bottom"].set_color(CB_INK)
+    ax.spines["left"].set_linewidth(1.0)
+    ax.spines["bottom"].set_linewidth(1.0)
+    ax.tick_params(colors=CB_INK, labelsize=8, width=0.8, length=3)
+    if grid_y:
+        ax.yaxis.grid(True, color=CB_GRID, lw=0.6, zorder=0)
+    if grid_x:
+        ax.xaxis.grid(True, color=CB_GRID, lw=0.6, zorder=0)
+    ax.set_axisbelow(True)
+
 
 def fig_competitor():
-    """One figure: heatmap of all algorithms including TabPFN, plus grouped bars."""
-    fig = plt.figure(figsize=(12.2, 6.4))
-    gs = fig.add_gridspec(2, 1, height_ratios=[1.35, 1.0], hspace=0.38)
-    ax = fig.add_subplot(gs[0, 0])
-    ax2 = fig.add_subplot(gs[1, 0])
+    """Journal figure (a) heatmap + (b) per-dataset dots. Also writes PDF/SVG."""
+    from matplotlib.lines import Line2D
 
+    fig, (ax_a, ax_b) = plt.subplots(
+        2, 1, figsize=(7.2, 8.2),
+        gridspec_kw={"height_ratios": [1.15, 1.0], "hspace": 0.32},
+    )
+
+    cmap = LinearSegmentedColormap.from_list(
+        "cb_div", [CB_ORANGE, "#FFFFFF", CB_BLUE], N=256
+    )
     show = np.clip(COMP, -0.5, 1.0)
-    cmap = LinearSegmentedColormap.from_list("rg", ["#9B1C1C", "#F2F2F0", "#0A5C5C"])
-    im = ax.imshow(show, aspect="auto", cmap=cmap, vmin=-0.35, vmax=1.0)
-    ax.set_xticks(range(len(COMP_ALG)))
-    ax.set_yticks(range(len(COMP_DS)))
-    ax.set_xticklabels(COMP_ALG, fontsize=10, fontweight="bold")
-    ax.set_yticklabels(COMP_DS, fontsize=10, fontweight="bold")
-    ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
-    # highlight TabPFN column header
-    for j, name in enumerate(COMP_ALG):
-        if name == "TabPFN":
-            ax.get_xticklabels()[j].set_color(NAVY)
+    im = ax_a.imshow(show, aspect="auto", cmap=cmap, vmin=-0.4, vmax=1.0)
+    ax_a.set_xticks(range(len(COMP_ALG)))
+    ax_a.set_yticks(range(len(COMP_DS)))
+    ax_a.set_xticklabels(COMP_ALG, fontsize=8)
+    ax_a.set_yticklabels(COMP_DS, fontsize=8)
+    ax_a.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False, length=0)
     for i in range(len(COMP_DS)):
         for j in range(len(COMP_ALG)):
             v = COMP[i, j]
             txt = f"{v:.2f}" if abs(v) < 1.5 else f"{v:.1f}"
-            bold = j == 0 or j == len(COMP_ALG) - 1 or (v == np.nanmax(COMP[i]) and v > 0)
-            ax.text(
-                j, i, txt, ha="center", va="center", fontsize=8,
-                color=WHITE if abs(show[i, j]) > 0.55 else INK,
-                fontweight="bold" if bold else "normal",
+            tc = "white" if abs(show[i, j]) > 0.55 else CB_INK
+            ax_a.text(
+                j, i, txt, ha="center", va="center", fontsize=6.5, color=tc,
+                fontweight="bold" if j == 0 else "normal",
             )
-    cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.015)
-    cbar.set_label(r"$R^2$", color=INK)
-    cbar.ax.tick_params(labelsize=8, colors=INK)
-    for sp in ax.spines.values():
-        sp.set_color(INK)
-        sp.set_linewidth(1.0)
-    title(ax, "비교 — 양의 8곳 × 전 알고리즘 (SAAR · … · TabPFN 동일 표)")
+    for sp in ax_a.spines.values():
+        sp.set_visible(True)
+        sp.set_color(CB_INK)
+        sp.set_linewidth(0.8)
+    cbar = fig.colorbar(im, ax=ax_a, fraction=0.03, pad=0.02, shrink=0.92)
+    cbar.set_label(r"$R^2$ (pooled)", fontsize=8, color=CB_INK)
+    cbar.ax.tick_params(labelsize=7, colors=CB_INK)
+    cbar.outline.set_linewidth(0.6)
+    ax_a.text(-0.08, 1.08, "(a)", transform=ax_a.transAxes, fontsize=11, fontweight="bold", color=CB_INK, va="bottom")
+    ax_a.set_title("Positive-8 datasets × algorithms (incl. TabPFN)", loc="left", fontsize=9, color=CB_INK, pad=18)
 
-    # grouped bars: SAAR + strong baselines + TabPFN together
-    key = ["SAAR", "V-REx", "GroupDRO", "LinRBF", "Engression", "TabPFN"]
-    key_idx = [COMP_ALG.index(k) for k in key]
-    colors = [TEAL, GREY, "#6E6E6E", NAVY, "#A0A0A0", "#C45C26"]
-    x = np.arange(len(COMP_DS))
-    w = 0.13
-    for ki, (name, j) in enumerate(zip(key, key_idx)):
-        vals = np.clip(COMP[:, j], -0.35, None)
-        ax2.bar(x + (ki - 2.5) * w, vals, w, label=name, color=colors[ki], edgecolor=WHITE, linewidth=0.4)
-    ax2.axhline(0, color=INK, lw=0.8)
-    ax2.set_xticks(x)
-    ax2.set_xticklabels(COMP_DS, fontsize=9, fontweight="bold")
-    ax2.set_ylabel(r"$R^2$")
-    ax2.set_ylim(-0.4, 1.15)
-    spines(ax2)
-    ax2.legend(frameon=False, ncol=6, loc="upper center", fontsize=8, bbox_to_anchor=(0.5, 1.18))
-    title(ax2, "같은 수치 · 막대 요약 (TabPFN 포함)")
+    rng = np.random.default_rng(0)
+    y = np.arange(len(COMP_DS))
+    for j, name in enumerate(COMP_ALG):
+        if name == "SAAR":
+            continue
+        jit = rng.uniform(-0.12, 0.12, size=len(COMP_DS))
+        ax_b.scatter(COMP[:, j], y + jit, s=22, color="#B0B0B0", alpha=0.85, edgecolors="none", zorder=2)
+    ax_b.scatter(COMP[:, 0], y, s=70, color=CB_BLUE, edgecolors=CB_INK, linewidths=0.6, zorder=4)
+    ax_b.scatter(COMP[:, -1], y, s=55, facecolors="none", edgecolors=CB_ORANGE, linewidths=1.5, zorder=3)
+    ax_b.axvline(0, color=CB_MUTED, lw=0.9, ls="--", zorder=1)
+    ax_b.set_yticks(y)
+    ax_b.set_yticklabels(COMP_DS, fontsize=8)
+    ax_b.set_xlabel(r"$R^2$ (pooled)", fontsize=9, color=CB_INK)
+    ax_b.set_xlim(-2.8, 1.15)
+    ax_b.set_ylim(-0.6, len(COMP_DS) - 0.4)
+    _journal_axes(ax_b, grid_y=False, grid_x=True)
+    ax_b.invert_yaxis()
+    legend_elems = [
+        Line2D([0], [0], marker="o", color="w", markerfacecolor=CB_BLUE, markeredgecolor=CB_INK, markersize=8, label="SAAR"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="none", markeredgecolor=CB_ORANGE, markersize=7, markeredgewidth=1.5, label="TabPFN"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#B0B0B0", markersize=5, label="Other methods"),
+    ]
+    ax_b.legend(handles=legend_elems, frameon=False, loc="lower right", fontsize=8)
+    ax_b.text(-0.08, 1.02, "(b)", transform=ax_b.transAxes, fontsize=11, fontweight="bold", color=CB_INK, va="bottom")
+    ax_b.set_title("Per-dataset view: SAAR (filled) vs TabPFN (open) vs others", loc="left", fontsize=9, color=CB_INK, pad=6)
 
-    save(fig, "competitor_bars.png")
+    fig.suptitle(r"Extrapolation $R^2$ on eight positive datasets", fontsize=11, fontweight="bold", color=CB_INK, y=0.995)
 
+    out_png = OUT / "competitor_bars.png"
+    fig.savefig(out_png, dpi=300, bbox_inches="tight", pad_inches=0.15, facecolor=WHITE)
+    fig.savefig(OUT / "competitor_journal.pdf", bbox_inches="tight", pad_inches=0.15, facecolor=WHITE)
+    fig.savefig(OUT / "competitor_journal.svg", bbox_inches="tight", pad_inches=0.15, facecolor=WHITE)
 
-# ── 7 SAAR vs TabPFN bars (kept for study PDF optional) ───────────────────────
+    # single-column ~3.5 in
+    fig2, (a2, b2) = plt.subplots(2, 1, figsize=(3.5, 5.2), gridspec_kw={"height_ratios": [1.1, 1.0], "hspace": 0.45})
+    im2 = a2.imshow(show, aspect="auto", cmap=cmap, vmin=-0.4, vmax=1.0)
+    a2.set_xticks(range(len(COMP_ALG)))
+    a2.set_yticks(range(len(COMP_DS)))
+    a2.set_xticklabels(COMP_ALG, fontsize=5.5, rotation=35, ha="left")
+    a2.set_yticklabels(COMP_DS, fontsize=6)
+    a2.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False, length=0)
+    for i in range(len(COMP_DS)):
+        for j in range(len(COMP_ALG)):
+            v = COMP[i, j]
+            txt = f"{v:.2f}" if abs(v) < 1.5 else f"{v:.1f}"
+            tc = "white" if abs(show[i, j]) > 0.55 else CB_INK
+            a2.text(j, i, txt, ha="center", va="center", fontsize=4.2, color=tc, fontweight="bold" if j == 0 else "normal")
+    for sp in a2.spines.values():
+        sp.set_color(CB_INK)
+        sp.set_linewidth(0.6)
+    a2.text(-0.12, 1.12, "(a)", transform=a2.transAxes, fontsize=8, fontweight="bold")
+    cb2 = fig2.colorbar(im2, ax=a2, fraction=0.04, pad=0.02)
+    cb2.set_label(r"$R^2$", fontsize=6)
+    cb2.ax.tick_params(labelsize=5)
+    for j, name in enumerate(COMP_ALG):
+        if name == "SAAR":
+            continue
+        jit = rng.uniform(-0.12, 0.12, size=len(COMP_DS))
+        b2.scatter(COMP[:, j], y + jit, s=10, color="#B0B0B0", alpha=0.85, edgecolors="none", zorder=2)
+    b2.scatter(COMP[:, 0], y, s=28, color=CB_BLUE, edgecolors=CB_INK, linewidths=0.4, zorder=4)
+    b2.scatter(COMP[:, -1], y, s=22, facecolors="none", edgecolors=CB_ORANGE, linewidths=1.2, zorder=3)
+    b2.axvline(0, color=CB_MUTED, lw=0.7, ls="--")
+    b2.set_yticks(y)
+    b2.set_yticklabels(COMP_DS, fontsize=6)
+    b2.set_xlabel(r"$R^2$", fontsize=7)
+    b2.set_xlim(-2.8, 1.15)
+    b2.invert_yaxis()
+    _journal_axes(b2, grid_y=False, grid_x=True)
+    b2.text(-0.12, 1.05, "(b)", transform=b2.transAxes, fontsize=8, fontweight="bold")
+    fig2.savefig(OUT / "competitor_journal_singlecol.pdf", bbox_inches="tight", pad_inches=0.08, facecolor=WHITE)
+    fig2.savefig(OUT / "competitor_journal_singlecol.png", dpi=300, bbox_inches="tight", pad_inches=0.08, facecolor=WHITE)
+    plt.close(fig2)
+    plt.close(fig)
+    print("wrote competitor_bars.png + competitor_journal.pdf/svg + singlecol")
+
 
 def fig_vs_tabpfn():
     fig, ax = plt.subplots(figsize=(11.8, 5.0))
