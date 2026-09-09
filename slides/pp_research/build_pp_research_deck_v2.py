@@ -149,6 +149,30 @@ def build():
         n += 1
         return n
 
+    # ===== 0 Lab-style cover (SPS seminar format) =====
+    s = blank(prs)
+    for sh in list(s.shapes):
+        sh._element.getparent().remove(sh._element)
+    bg = s.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.RECTANGLE, 0, 0, W, H)
+    bg.fill.solid()
+    bg.fill.fore_color.rgb = C["white"]
+    bg.line.fill.background()
+    frame = s.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.RECTANGLE, px(28), px(22), px(1224), px(676))
+    frame.fill.background()
+    frame.line.color.rgb = RGBColor(0x55, 0x55, 0x55)
+    frame.line.width = Pt(1.25)
+    logo = ASSETS / "sps_lab_logo.png"
+    if logo.exists():
+        s.shapes.add_picture(str(logo), px(820), px(48), px(400), px(80))
+    else:
+        add_text(s, 820, 55, 400, 60, "Smart Production\nSystems Laboratory", 12, C["ink"], True, "right")
+    add_text(s, 140, 250, 1000, 70, "PP Extrapolation Research", 36, C["ink"], True, "center")
+    add_text(s, 140, 330, 1000, 40, "식 없는 외삽 안전장치 (SAAR / PP)", 20, C["ink"], False, "center")
+    add_text(s, 140, 400, 1000, 28, "Smart Production Systems Lab.", 16, C["ink"], False, "center")
+    add_text(s, 140, 440, 1000, 28, "박사과정 박형배", 16, C["ink"], False, "center")
+    add_text(s, 140, 560, 1000, 28, "2026.09.09", 16, C["ink"], False, "center")
+    p()
+
     # ===== 1 Clean PP/PAE picture =====
     s = blank(prs)
     rect(s, 0, 0, 1280, 8, C["navy"])
@@ -179,12 +203,12 @@ def build():
             True,
         )
     add_text(s, 70, 665, 500, 20, "Smart Production Systems Lab.", 10, C["grey"])
-    add_text(s, 1140, 665, 60, 20, "01", 11, C["grey"], True, "right")
+    add_text(s, 1140, 665, 60, 20, "02", 11, C["grey"], True, "right")
     p()
 
     # ===== 2 PP summary (before detail) =====
     s = blank(prs)
-    topbar(s, "02", "PP 서머리", "두괄식  ·  식 없는 경로의 지금 결론")
+    topbar(s, "03", "PP 서머리", "두괄식  ·  식 없는 경로의 지금 결론")
     rect(s, 70, 145, 1140, 100, C["teal"], None, True)
     add_text(s, 95, 158, 280, 22, "EQUATION-FREE  ·  SAAR", 11, C["white"], True)
     add_text(
