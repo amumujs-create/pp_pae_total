@@ -283,14 +283,12 @@ def build():
     # ── 7 Competitors ──
     story.append(Paragraph("7. 경쟁 방법 비교 (양의 8곳)", S["H1"]))
     story.append(Paragraph(
-        "알고리즘: SAAR, V-REx, GroupDRO, Monotone, LinRBF, Engression, GP, TabPFN. "
-        "TabPFN은 보조 비교(train 행 상한·일부 단일 seed). MATRb2만으로 SAAR 우위를 주장하지 않는다.",
+        "알고리즘: SAAR, V-REx, GroupDRO, Monotone, LinRBF, Engression, GP, TabPFN — "
+        "같은 표·같은 그래프에 함께 표시한다.",
         S["Body"],
     ))
-    story.append(fig("competitor_bars.png", 175 * mm, 95 * mm))
-    story.append(Paragraph("그림 9. 표 기반 heatmap (R²)", S["Caption"]))
-    story.append(fig("pp_vs_tabpfn.png", 170 * mm, 75 * mm))
-    story.append(Paragraph("그림 10. SAAR vs TabPFN 직접 비교", S["Caption"]))
+    story.append(fig("competitor_bars.png", 175 * mm, 110 * mm))
+    story.append(Paragraph("그림 9. heatmap + 막대 요약 (TabPFN 포함)", S["Caption"]))
     story.append(PageBreak())
 
     # ── 8 Robustness ──
