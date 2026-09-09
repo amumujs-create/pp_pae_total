@@ -179,34 +179,44 @@ def build():
 
     # ===== 2 Agenda =====
     s = blank(prs)
-    topbar(s, "00", "발표 구성", "왜 → 그래서 프레임 → 지금은 PP → 요약 → 상세")
-    items = [
-        ("A", "모티베이션", "밖에서는 가정이\n예측을 가른다", C["orange"]),
-        ("0", "프레임", "식 있음=PAE\n식 없음=PP", C["crimson"]),
-        ("1", "PP 요약", "두괄식 한 장\n현재 단계 결론", C["teal"]),
-        ("B–D", "상세", "방법·실험·한계\n전망", C["navy"]),
+    # soft backdrop band
+    rect(s, 0, 140, 1280, 430, C["pale"])
+    topbar(s, "00", "오늘 따라갈 길", "왜 필요한가에서 시작해, 식 유무로 갈리고, PP 결론을 본 뒤 상세로 들어간다")
+
+    steps = [
+        ("01", "모티베이션", "밖에서는 가정이\n예측을 가른다", "왜", C["orange"]),
+        ("02", "프레임", "식 있음 → PAE\n식 없음 → PP", "갈림", C["crimson"]),
+        ("03", "PP 요약", "두괄식으로\n현재 단계 결론", "지금", C["teal"]),
+        ("04", "상세", "방법 · 실험\n한계 · 전망", "근거", C["navy"]),
     ]
-    for i, (letter, title, body, col) in enumerate(items):
-        x = 85 + i * 290
-        rect(s, x, 200, 265, 240, C["white"], C["line"], True)
-        rect(s, x, 200, 265, 64, col)
-        add_text(s, x + 16, 214, 60, 28, letter, 18, C["white"], True)
-        add_text(s, x + 70, 218, 180, 30, title, 18, C["white"], True)
-        add_text(s, x + 22, 300, 220, 90, body, 16, C["ink"])
-        if i < 3:
-            arrow(s, x + 268, 300, 18, 22, C["line"])
-    rect(s, 85, 490, 1110, 95, C["wash"], None, True)
-    add_text(
-        s,
-        115,
-        520,
-        1050,
-        40,
-        "핵심 구분  ·  PAE = 후보식이 있을 때  ·  PP = 식이 없을 때(equation-free). 이번 자료는 PP.",
-        16,
-        C["ink"],
-        True,
-    )
+    # connector line behind nodes
+    line = s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(160), px(248), px(1120), px(248))
+    line.line.color.rgb = C["line"]
+    line.line.width = Pt(2.5)
+
+    for i, (num, title, body, tag, col) in enumerate(steps):
+        x = 95 + i * 295
+        # node circle (approx with rounded square)
+        circ = rect(s, x + 88, 228, 44, 44, col, None, True)
+        if hasattr(circ, "adjustments") and len(circ.adjustments) > 0:
+            circ.adjustments[0] = 0.5
+        add_text(s, x + 88, 236, 44, 28, num, 12, C["white"], True, "center")
+        # card below
+        rect(s, x, 300, 260, 220, C["white"], C["line"], True)
+        rect(s, x, 300, 6, 220, col)
+        add_text(s, x + 22, 318, 80, 22, tag, 11, col, True)
+        add_text(s, x + 22, 348, 220, 36, title, 20, C["ink"], True)
+        add_text(s, x + 22, 400, 220, 90, body, 14, C["grey"])
+
+    # key distinction as two equal panels
+    rect(s, 70, 560, 560, 85, C["white"], C["orange"], True)
+    rect(s, 70, 560, 10, 85, C["orange"])
+    add_text(s, 100, 572, 500, 22, "PAE  ·  식 있는 경로", 15, C["orange"], True)
+    add_text(s, 100, 602, 500, 28, "후보식이 관측으로 정당화될 때", 13, C["ink"])
+    rect(s, 650, 560, 560, 85, C["white"], C["teal"], True)
+    rect(s, 650, 560, 10, 85, C["teal"])
+    add_text(s, 680, 572, 500, 22, "PP  ·  식 없는 경로", 15, C["teal"], True)
+    add_text(s, 680, 602, 500, 28, "equation-free  ·  이번 자료의 주 경로", 13, C["ink"])
     foot(s, p())
 
     # ===== 3 Motivation (first) =====
@@ -222,45 +232,48 @@ def build():
 
     # ===== 3b Bridge to framework =====
     s = blank(prs)
-    topbar(s, "A", "그래서 무엇을 하고 싶은가", "한 모델이 아니라, 식 유무에 따라 갈리는 프레임")
-    rect(s, 70, 160, 1140, 100, C["wash"], None, True)
+    topbar(s, "A", "그래서 무엇을 하고 싶은가", "한 모델이 아니라, 식 유무에 따라 갈리는 연구 프레임")
+    rect(s, 70, 145, 1140, 88, C["navy"], None, True)
     add_text(
         s,
         95,
-        185,
+        160,
         1090,
-        55,
-        "밖을 지탱하는 건 데이터만이 아니다 → 가정을 숨기지 말고,\n"
-        "관측으로 정당화되는 수준만 쓰고, 틀리면 줄이거나 멈추는 시스템을 만들고 싶다.",
+        60,
+        "가정을 숨기지 않고, 관측으로 정당화되는 수준만 쓰며,\n틀리면 줄이거나 멈추는 외삽 시스템을 만들고 싶다.",
         16,
-        C["ink"],
+        C["white"],
         True,
     )
-    # two big branches
-    rect(s, 70, 300, 540, 250, C["white"], C["orange"], True)
-    rect(s, 70, 300, 540, 56, C["orange"])
-    add_text(s, 95, 314, 490, 30, "후보 식이 있으면 → PAE", 18, C["white"], True)
+
+    # left PAE
+    rect(s, 70, 265, 545, 285, C["white"], C["line"], True)
+    rect(s, 70, 265, 545, 72, C["orange"])
+    add_text(s, 95, 278, 120, 22, "PATH A", 11, C["pink"], True)
+    add_text(s, 95, 300, 490, 28, "식이 있으면  →  PAE", 20, C["white"], True)
     add_text(
         s,
         95,
-        380,
+        360,
         490,
-        140,
-        "Equation path\n허용된 식을 뼈대로 두고\n부족분만 제한된 NN으로 보정\n이득 없으면 식을 끈다",
-        16,
+        160,
+        "Equation path\n\n허용된 식을 뼈대로 두고\n부족분만 제한된 NN으로 보정한다.\n이득이 없으면 식을 끈다.",
+        15,
         C["ink"],
     )
-    rect(s, 670, 300, 540, 250, C["white"], C["teal"], True)
-    rect(s, 670, 300, 540, 56, C["teal"])
-    add_text(s, 695, 314, 490, 30, "후보 식이 없으면 → PP", 18, C["white"], True)
+    # right PP (emphasized as today)
+    rect(s, 665, 265, 545, 285, C["white"], C["teal"], True)
+    rect(s, 665, 265, 545, 72, C["teal"])
+    add_text(s, 690, 278, 200, 22, "PATH B  ·  TODAY", 11, C["white"], True)
+    add_text(s, 690, 300, 490, 28, "식이 없으면  →  PP", 20, C["white"], True)
     add_text(
         s,
-        695,
-        380,
+        690,
+        360,
         490,
-        140,
-        "Equation-free path\n경계·이력 같은 약한 prior만\n고정 affine + bounded residual\n(이번 발표의 주 경로)",
-        16,
+        160,
+        "Equation-free path\n\n경계·이력 같은 약한 prior만 쓰고\n고정 affine + bounded residual로\nNN이 prior를 덮어쓰지 않게 한다.",
+        15,
         C["ink"],
     )
     add_text(
@@ -269,7 +282,7 @@ def build():
         575,
         1100,
         30,
-        "이 분기 자체가 연구의 큰 그림이다. 이름보다 먼저 기억할 것: 식 있음=PAE, 식 없음=PP.",
+        "이름보다 먼저 기억할 구분  ·  PAE = 식 있음  ·  PP = 식 없음. 이번 발표는 Path B(PP).",
         14,
         C["crimson"],
         True,
