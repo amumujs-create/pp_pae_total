@@ -703,6 +703,64 @@ def fig_protocol():
     save(fig, "protocol_flow.png")
 
 
+def fig_research_route():
+    """Decision-tree style research route: equation? → PAE / PP → Assurance."""
+    fig, ax = plt.subplots(figsize=(12.2, 5.2))
+    ax.set_xlim(0, 12)
+    ax.set_ylim(0, 5.2)
+    ax.axis("off")
+
+    def box(x, y, w, h, facecolor, edge, text, tw=11, tc=INK, bold=False):
+        p = FancyBboxPatch(
+            (x, y), w, h, boxstyle="round,pad=0.02,rounding_size=0.08",
+            facecolor=facecolor, edgecolor=edge, linewidth=1.8,
+        )
+        ax.add_patch(p)
+        ax.text(
+            x + w / 2, y + h / 2, text, ha="center", va="center",
+            fontsize=tw, color=tc, fontweight="bold" if bold else "normal",
+            linespacing=1.35,
+        )
+
+    # motivation
+    box(0.4, 4.35, 11.2, 0.65, WASH, LINE,
+        "MOTIVATION   ·   밖을 지탱하는 것은 데이터가 아니라 가정이다.  식을 무조건 넣지도, NN에만 맡기지도 않겠다.",
+        tw=11)
+
+    # root
+    box(3.7, 3.35, 4.6, 0.7, NAVY, NAVY, "관측 · 경계 · 도메인 지식", tw=13, tc="white", bold=True)
+    ax.annotate("", xy=(6, 3.15), xytext=(6, 3.35),
+                arrowprops=dict(arrowstyle="->", color=LINE, lw=2))
+
+    # question
+    box(3.2, 2.35, 5.6, 0.7, CRIMSON, CRIMSON, "후보식이 관측으로 정당화되는가?", tw=13, tc="white", bold=True)
+
+    # branches
+    ax.annotate("", xy=(2.6, 1.95), xytext=(4.5, 2.35),
+                arrowprops=dict(arrowstyle="->", color=ORANGE, lw=2.2))
+    ax.annotate("", xy=(9.4, 1.95), xytext=(7.5, 2.35),
+                arrowprops=dict(arrowstyle="->", color=TEAL, lw=2.2))
+    ax.text(3.2, 2.05, "YES", color=ORANGE, fontsize=11, fontweight="bold", ha="center")
+    ax.text(8.8, 2.05, "NO", color=TEAL, fontsize=11, fontweight="bold", ha="center")
+
+    box(0.35, 0.85, 5.0, 1.05, "#FFF8F4", ORANGE,
+        "PAE  ·  식 있는 경로\n허용된 식 + 제한 NN   ·   다음 논문", tw=12)
+    box(6.65, 0.85, 5.0, 1.05, "#F2FAF8", TEAL,
+        "PP  ·  식 없는 경로  (TODAY)\nequation-free 외삽 안전장치  ·  이번 발표", tw=12, bold=True)
+
+    # converge
+    ax.annotate("", xy=(6, 0.55), xytext=(2.85, 0.85),
+                arrowprops=dict(arrowstyle="->", color=LINE, lw=1.6))
+    ax.annotate("", xy=(6, 0.55), xytext=(9.15, 0.85),
+                arrowprops=dict(arrowstyle="->", color=LINE, lw=1.6))
+    box(2.2, 0.12, 7.6, 0.45, PALE, NAVY,
+        "최종 goal  ·  Assurance(믿기 / 보류)까지 연결  ·  박사논문에서 두 경로를 한 프레임으로",
+        tw=10, tc=NAVY)
+
+    ax.set_title("연구 루트 (의사결정)", color=INK, fontsize=13, loc="left", pad=4)
+    save(fig, "research_route.png")
+
+
 def main():
     fig_motivation()
     fig_prior_ladder()
@@ -722,6 +780,7 @@ def main():
     fig_dataset_landscape()
     fig_mich_units()
     fig_protocol()
+    fig_research_route()
     print("done", OUT)
 
 

@@ -177,46 +177,23 @@ def build():
     add_text(s, 76, 650, 200, 20, "2026-09", 12, C["rose"])
     p()
 
-    # ===== 2 Agenda =====
+    # ===== 2 Agenda = motivation + decision route =====
     s = blank(prs)
-    # soft backdrop band
-    rect(s, 0, 140, 1280, 430, C["pale"])
-    topbar(s, "00", "오늘 따라갈 길", "왜 필요한가에서 시작해, 식 유무로 갈리고, PP 결론을 본 뒤 상세로 들어간다")
-
-    steps = [
-        ("01", "모티베이션", "밖에서는 가정이\n예측을 가른다", "왜", C["orange"]),
-        ("02", "프레임", "식 있음 → PAE\n식 없음 → PP", "갈림", C["crimson"]),
-        ("03", "PP 요약", "두괄식으로\n현재 단계 결론", "지금", C["teal"]),
-        ("04", "상세", "방법 · 실험\n한계 · 전망", "근거", C["navy"]),
-    ]
-    # connector line behind nodes
-    line = s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(160), px(248), px(1120), px(248))
-    line.line.color.rgb = C["line"]
-    line.line.width = Pt(2.5)
-
-    for i, (num, title, body, tag, col) in enumerate(steps):
-        x = 95 + i * 295
-        # node circle (approx with rounded square)
-        circ = rect(s, x + 88, 228, 44, 44, col, None, True)
-        if hasattr(circ, "adjustments") and len(circ.adjustments) > 0:
-            circ.adjustments[0] = 0.5
-        add_text(s, x + 88, 236, 44, 28, num, 12, C["white"], True, "center")
-        # card below
-        rect(s, x, 300, 260, 220, C["white"], C["line"], True)
-        rect(s, x, 300, 6, 220, col)
-        add_text(s, x + 22, 318, 80, 22, tag, 11, col, True)
-        add_text(s, x + 22, 348, 220, 36, title, 20, C["ink"], True)
-        add_text(s, x + 22, 400, 220, 90, body, 14, C["grey"])
-
-    # key distinction as two equal panels
-    rect(s, 70, 560, 560, 85, C["white"], C["orange"], True)
-    rect(s, 70, 560, 10, 85, C["orange"])
-    add_text(s, 100, 572, 500, 22, "PAE  ·  식 있는 경로", 15, C["orange"], True)
-    add_text(s, 100, 602, 500, 28, "후보식이 관측으로 정당화될 때", 13, C["ink"])
-    rect(s, 650, 560, 560, 85, C["white"], C["teal"], True)
-    rect(s, 650, 560, 10, 85, C["teal"])
-    add_text(s, 680, 572, 500, 22, "PP  ·  식 없는 경로", 15, C["teal"], True)
-    add_text(s, 680, 602, 500, 28, "equation-free  ·  이번 자료의 주 경로", 13, C["ink"])
+    topbar(s, "00", "무엇을 하려는가", "짧은 모티베이션 + 식 유무 의사결정 루트  ·  오늘은 그 중 PP")
+    if not pic(s, "research_route.png", 40, 135, 1200, 510):
+        # fallback if figure missing
+        rect(s, 70, 160, 1140, 80, C["wash"], None, True)
+        add_text(s, 95, 185, 1090, 40, "학습 밖은 가정이 지탱한다 → 식 있으면 PAE, 없으면 PP → Assurance", 16, C["ink"], True)
+    add_text(
+        s,
+        90,
+        655,
+        1100,
+        18,
+        "발표 순서  ·  모티베이션 상세 → 이 루트 설명 → PP 요약 → 방법·실험",
+        11,
+        C["grey"],
+    )
     foot(s, p())
 
     # ===== 3 Motivation (first) =====
@@ -232,7 +209,7 @@ def build():
 
     # ===== 3b Bridge to framework =====
     s = blank(prs)
-    topbar(s, "A", "그래서 무엇을 하고 싶은가", "한 모델이 아니라, 식 유무에 따라 갈리는 연구 프레임")
+    topbar(s, "A", "그래서 무엇을 하고 싶은가", "앞 장 의사결정 루트를 말로 풀어 쓰면")
     rect(s, 70, 145, 1140, 88, C["navy"], None, True)
     add_text(
         s,
