@@ -484,11 +484,11 @@ def build():
 
     # ===== 5 Research Q + ladder =====
     s = blank(prs)
-    topbar(s, "A", "질문 세 가지", "식을 넣을까 · 식 없이 어떻게 · 믿어도 될까")
+    topbar(s, "B", "질문 세 가지", "식 있음(PAE) · 식 없음(PP) · 믿어도 되나")
     pic(s, "prior_ladder.png", 40, 145, 760, 330)
     qs = [
-        ("Q1", "어떤 식을 넣을까?", "PAE"),
-        ("Q2", "식 없이 어떻게?", "PP"),
+        ("Q1", "식이 있으면?", "PAE"),
+        ("Q2", "식이 없으면?", "PP"),
         ("Q3", "믿어도 되나?", "보증"),
     ]
     for i, (q, body, tag) in enumerate(qs):
@@ -503,7 +503,7 @@ def build():
         500,
         1100,
         45,
-        "지금 논문은 Q2(PP). PP는 prior-free가 아니라 equation-free. 일반 구조 bias(safeguard)는 있다.",
+        "기억  ·  PAE=식 있는 경로  ·  PP=식 없는 경로. 지금 논문은 Q2(PP, equation-free).",
         15,
         C["teal"],
         True,
@@ -512,7 +512,7 @@ def build():
 
     # ===== 6 PP/PAE flow =====
     s = blank(prs)
-    topbar(s, "B", "PP와 PAE의 분기", "후보식이 있으면 PAE(식+NN) · 없으면 PP")
+    topbar(s, "B", "다시 한 번: 식 유무 분기", "있으면 PAE(식+NN) · 없으면 PP(equation-free)")
     pic(s, "pp_pae_flow.png", 50, 145, 1180, 380)
     add_text(
         s,
@@ -520,9 +520,9 @@ def build():
         545,
         1100,
         40,
-        "PAE에서도 식만으로 끝내지 않는다. 허용된 식 위에 부족분은 NN이 제한적으로 학습한다.",
+        "이름보다 구분: PAE는 식 뼈대 + 제한 NN  ·  PP는 식 없이 약한 prior만. 이번 주결과는 PP.",
         14,
-        C["ink"],
+        C["crimson"],
         True,
     )
     foot(s, p())
