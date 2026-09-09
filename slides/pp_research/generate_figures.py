@@ -334,39 +334,67 @@ def fig_ablation_panel():
     save(fig, "ablation_panel.png")
 
 
-# ── 6 Competitor heatmap ──────────────────────────────────────────────────────
+# ── 6 Competitor heatmap + bars (TabPFN included as a peer) ───────────────────
 
 def fig_competitor():
-    fig, ax = plt.subplots(figsize=(12.0, 5.6))
+    """One figure: heatmap of all algorithms including TabPFN, plus grouped bars."""
+    fig = plt.figure(figsize=(12.2, 6.4))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.35, 1.0], hspace=0.38)
+    ax = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[1, 0])
+
     show = np.clip(COMP, -0.5, 1.0)
     cmap = LinearSegmentedColormap.from_list("rg", ["#9B1C1C", "#F2F2F0", "#0A5C5C"])
     im = ax.imshow(show, aspect="auto", cmap=cmap, vmin=-0.35, vmax=1.0)
     ax.set_xticks(range(len(COMP_ALG)))
     ax.set_yticks(range(len(COMP_DS)))
     ax.set_xticklabels(COMP_ALG, fontsize=10, fontweight="bold")
-    ax.set_yticklabels(COMP_DS, fontsize=11, fontweight="bold")
+    ax.set_yticklabels(COMP_DS, fontsize=10, fontweight="bold")
     ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
+    # highlight TabPFN column header
+    for j, name in enumerate(COMP_ALG):
+        if name == "TabPFN":
+            ax.get_xticklabels()[j].set_color(NAVY)
     for i in range(len(COMP_DS)):
         for j in range(len(COMP_ALG)):
             v = COMP[i, j]
             txt = f"{v:.2f}" if abs(v) < 1.5 else f"{v:.1f}"
-            bold = j == 0 or (v == np.nanmax(COMP[i]) and v > 0)
-            ax.text(j, i, txt, ha="center", va="center", fontsize=8.5,
-                    color=WHITE if abs(show[i, j]) > 0.55 else INK,
-                    fontweight="bold" if bold else "normal")
-    cbar = fig.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
+            bold = j == 0 or j == len(COMP_ALG) - 1 or (v == np.nanmax(COMP[i]) and v > 0)
+            ax.text(
+                j, i, txt, ha="center", va="center", fontsize=8,
+                color=WHITE if abs(show[i, j]) > 0.55 else INK,
+                fontweight="bold" if bold else "normal",
+            )
+    cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.015)
     cbar.set_label(r"$R^2$", color=INK)
-    cbar.ax.tick_params(labelsize=9, colors=INK)
+    cbar.ax.tick_params(labelsize=8, colors=INK)
     for sp in ax.spines.values():
         sp.set_color(INK)
         sp.set_linewidth(1.0)
-    title(ax, "비교 — 양의 8곳 × 알고리즘 (표 기반 heatmap)")
-    fig.text(0.08, 0.02, "TabPFN: 보조 비교(train 상한·일부 단일 seed). MATRb2만으로 SAAR 우위 주장하지 않음.",
-             color=MUTED, fontsize=9)
+    title(ax, "비교 — 양의 8곳 × 전 알고리즘 (SAAR · … · TabPFN 동일 표)")
+
+    # grouped bars: SAAR + strong baselines + TabPFN together
+    key = ["SAAR", "V-REx", "GroupDRO", "LinRBF", "Engression", "TabPFN"]
+    key_idx = [COMP_ALG.index(k) for k in key]
+    colors = [TEAL, GREY, "#6E6E6E", NAVY, "#A0A0A0", "#C45C26"]
+    x = np.arange(len(COMP_DS))
+    w = 0.13
+    for ki, (name, j) in enumerate(zip(key, key_idx)):
+        vals = np.clip(COMP[:, j], -0.35, None)
+        ax2.bar(x + (ki - 2.5) * w, vals, w, label=name, color=colors[ki], edgecolor=WHITE, linewidth=0.4)
+    ax2.axhline(0, color=INK, lw=0.8)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(COMP_DS, fontsize=9, fontweight="bold")
+    ax2.set_ylabel(r"$R^2$")
+    ax2.set_ylim(-0.4, 1.15)
+    spines(ax2)
+    ax2.legend(frameon=False, ncol=6, loc="upper center", fontsize=8, bbox_to_anchor=(0.5, 1.18))
+    title(ax2, "같은 수치 · 막대 요약 (TabPFN 포함)")
+
     save(fig, "competitor_bars.png")
 
 
-# ── 7 SAAR vs TabPFN bars ─────────────────────────────────────────────────────
+# ── 7 SAAR vs TabPFN bars (kept for study PDF optional) ───────────────────────
 
 def fig_vs_tabpfn():
     fig, ax = plt.subplots(figsize=(11.8, 5.0))
@@ -375,11 +403,11 @@ def fig_vs_tabpfn():
     x = np.arange(len(COMP_DS))
     w = 0.38
     ax.bar(x - w / 2, pp, w, color=TEAL, label="SAAR", edgecolor=WHITE)
-    ax.bar(x + w / 2, np.clip(pfn, -1.0, None), w, color=NAVY, label="TabPFN", edgecolor=WHITE, alpha=0.85)
+    ax.bar(x + w / 2, np.clip(pfn, -1.0, None), w, color="#C45C26", label="TabPFN", edgecolor=WHITE)
     for i, (a, b) in enumerate(zip(pp, pfn)):
         ax.text(i - w / 2, a + 0.03, f"{a:.2f}", ha="center", fontsize=8, color=INK, fontweight="bold")
         ypos = max(min(b, 1.0), -1.0)
-        ax.text(i + w / 2, ypos + 0.03 if ypos > -0.9 else -0.95, f"{b:.2f}", ha="center", fontsize=8, color=NAVY)
+        ax.text(i + w / 2, ypos + 0.03 if ypos > -0.9 else -0.95, f"{b:.2f}", ha="center", fontsize=8, color="#C45C26")
     ax.axhline(0, color=INK, lw=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(COMP_DS, fontsize=10, fontweight="bold")
@@ -387,7 +415,7 @@ def fig_vs_tabpfn():
     ax.set_ylim(-1.15, 1.2)
     spines(ax)
     ax.legend(frameon=False, loc="upper right")
-    title(ax, "SAAR vs TabPFN (동일 고정 test · TabPFN 보조 조건)")
+    title(ax, "SAAR vs TabPFN (동일 표의 두 열)")
     save(fig, "pp_vs_tabpfn.png")
 
 

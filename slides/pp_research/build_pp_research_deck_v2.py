@@ -112,7 +112,7 @@ def build():
     prs.slide_width = W
     prs.slide_height = H
     n = 0
-    TOTAL = 12
+    TOTAL = 11
 
     def p():
         nonlocal n
@@ -177,32 +177,26 @@ def build():
     pic(s, "ablation_panel.png", 30, 85, 1220, 550)
     foot(s, p(), TOTAL)
 
-    # 8 Competitors
+    # 8 Competitors — TabPFN included in the same figure
     s = blank(prs)
-    head(s, "비교", "양의 8곳 × 알고리즘 $R^2$")
-    pic(s, "competitor_bars.png", 30, 80, 1220, 560)
+    head(s, "비교", "양의 8곳 × 전 알고리즘 (SAAR … TabPFN 한 그래프)")
+    pic(s, "competitor_bars.png", 40, 78, 1200, 560)
     foot(s, p(), TOTAL)
 
-    # 9 vs TabPFN
-    s = blank(prs)
-    head(s, "SAAR vs TabPFN", "표 수치 기반 막대 비교")
-    pic(s, "pp_vs_tabpfn.png", 40, 90, 1200, 540)
-    foot(s, p(), TOTAL)
-
-    # 10 Robustness
+    # 9 Robustness
     s = blank(prs)
     head(s, "안정성", "bootstrap CI  ·  MICH unit $R^2$")
     pic(s, "robustness_panel.png", 30, 90, 1220, 530)
     foot(s, p(), TOTAL)
 
-    # 11 Failures + limits
+    # 10 Failures + limits
     s = blank(prs)
     head(s, "실패 · 경계", "표로 남긴 한계  ·  주장 / 비주장")
     pic(s, "fail_cases.png", 30, 85, 620, 520)
     pic(s, "status_compact.png", 660, 85, 560, 520)
     foot(s, p(), TOTAL)
 
-    # 12 Dual path + takeaway
+    # 11 Dual path + takeaway
     s = blank(prs)
     head(s, "경로와 한 줄", "PAE / SAAR  ·  오늘 가져갈 말")
     pic(s, "pp_vs_pae_split.png", 40, 85, 1200, 380)
