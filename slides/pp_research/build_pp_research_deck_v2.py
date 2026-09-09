@@ -149,54 +149,103 @@ def build():
         n += 1
         return n
 
-    # ===== 1 Cover =====
+    # ===== 1 Clean PP/PAE picture =====
     s = blank(prs)
-    for sh in list(s.shapes):
-        sh._element.getparent().remove(sh._element)
-    rect(s, 0, 0, 1280, 720, C["crimson"])
-    hero = ASSETS / "domain_hero.png"
-    if hero.exists():
-        s.shapes.add_picture(str(hero), px(560), 0, px(720), px(720))
-    rect(s, 0, 0, 710, 720, C["crimson"])
-    rect(s, 650, 0, 160, 720, C["crimson2"])
-    rect(s, 72, 78, 88, 5, C["white"])
-    add_text(s, 72, 42, 360, 24, "KOREA UNIVERSITY", 14, C["white"], True)
-    add_text(s, 72, 155, 560, 110, "PP EXTRAPOLATION\nRESEARCH BRIEFING", 38, C["white"], True)
+    rect(s, 0, 0, 1280, 8, C["navy"])
+    add_text(s, 70, 28, 900, 28, "Assumption-Aware Extrapolation", 12, C["grey"], True)
+    add_text(s, 70, 52, 1000, 36, "최종으로 만들고 싶은 그림", 24, C["ink"], True)
     add_text(
         s,
-        76,
-        295,
-        540,
-        90,
-        "식 있으면 PAE  ·  식 없으면 PP\n지금은 식 없는 경로(PP)를 연구한다",
-        18,
-        C["pink"],
+        70,
+        92,
+        1100,
+        24,
+        "식 있으면 PAE  ·  식 없으면 PP  ·  지금은 PP 단계",
+        14,
+        C["teal"],
+        True,
     )
-    add_text(s, 76, 420, 500, 28, "남은수명 · 배터리 · 베어링 · 공구 상태예측", 14, C["rose"])
-    add_text(s, 76, 560, 420, 50, "Smart Production Systems Lab.\n모티베이션 → 프레임 → PP 요약", 14, C["white"])
-    add_text(s, 76, 650, 200, 20, "2026-09", 12, C["rose"])
+    if not pic(s, "research_route.png", 50, 130, 1180, 520):
+        rect(s, 70, 200, 1140, 120, C["wash"], None, True)
+        add_text(
+            s,
+            95,
+            240,
+            1090,
+            50,
+            "식 있음 → PAE   |   식 없음 → PP(TODAY)   |   → Assurance",
+            18,
+            C["ink"],
+            True,
+        )
+    add_text(s, 70, 665, 500, 20, "Smart Production Systems Lab.", 10, C["grey"])
+    add_text(s, 1140, 665, 60, 20, "01", 11, C["grey"], True, "right")
     p()
 
-    # ===== 2 Agenda = motivation + decision route =====
+    # ===== 2 PP summary (before detail) =====
     s = blank(prs)
-    topbar(s, "00", "무엇을 하려는가", "짧은 모티베이션 + 식 유무 의사결정 루트  ·  오늘은 그 중 PP")
-    if not pic(s, "research_route.png", 40, 135, 1200, 510):
-        # fallback if figure missing
-        rect(s, 70, 160, 1140, 80, C["wash"], None, True)
-        add_text(s, 95, 185, 1090, 40, "학습 밖은 가정이 지탱한다 → 식 있으면 PAE, 없으면 PP → Assurance", 16, C["ink"], True)
+    topbar(s, "02", "PP 서머리", "두괄식  ·  식 없는 경로의 지금 결론")
+    rect(s, 70, 145, 1140, 100, C["teal"], None, True)
+    add_text(s, 95, 158, 280, 22, "EQUATION-FREE  ·  SAAR", 11, C["white"], True)
+    add_text(
+        s,
+        95,
+        185,
+        1090,
+        45,
+        "PP = 식 없는 외삽 안전장치.  고정 affine + 제한 residual.\n"
+        "대비: PAE = 식 있는 경로 (이번 주결과 아님).",
+        15,
+        C["white"],
+    )
+    bits = [
+        ("한 줄 식", "ŷ = m · softplus(ℓ + cθ)\nm: 경계 · ℓ: 동결 affine\ncθ: dual-scale residual", C["navy"]),
+        ("주 결과", "Sunwoda / RWTH / MICH\n0.934 / 0.842 / 0.751\n최저점을 살린 tradeoff", C["blue"]),
+        ("주장 범위", "연속 열화 · 경계 prior\nval ≈ test일 때\n만능 SOTA 아님", C["orange"]),
+        ("아직", "Zn · 베어링 = 한계/확장\nPAE(식 있음) 결과 없음\n분야 Q1–Q2 본선", C["crimson"]),
+    ]
+    for i, (h, b, col) in enumerate(bits):
+        x = 70 + i * 290
+        y = 275
+        rect(s, x, y, 275, 240, C["white"], C["line"], True)
+        rect(s, x, y, 6, 240, col)
+        add_text(s, x + 20, y + 18, 230, 28, h, 15, col, True)
+        add_text(s, x + 20, y + 60, 230, 160, b, 13, C["ink"])
     add_text(
         s,
         90,
-        655,
+        545,
         1100,
-        18,
-        "발표 순서  ·  모티베이션 상세 → 이 루트 설명 → PP 요약 → 방법·실험",
-        11,
+        40,
+        "다음부터 상세  ·  모티베이션 → 방법 → 실험·한계",
+        13,
         C["grey"],
+        True,
     )
     foot(s, p())
 
-    # ===== 3 Motivation (first) =====
+    # ===== 3 Detail divider =====
+    s = blank(prs)
+    for sh in list(s.shapes):
+        sh._element.getparent().remove(sh._element)
+    rect(s, 0, 0, 1280, 720, C["navy"])
+    rect(s, 72, 250, 88, 5, C["orange"])
+    add_text(s, 90, 280, 1100, 40, "DETAIL", 14, C["orange"], True)
+    add_text(s, 90, 330, 1100, 70, "이제부터 상세 — PP", 40, C["white"], True)
+    add_text(
+        s,
+        90,
+        420,
+        1000,
+        50,
+        "모티베이션 → 바운더리 → SAAR 구조 → 실험 · 한계 → 전망",
+        18,
+        RGBColor(0xC8, 0xD4, 0xE3),
+    )
+    add_text(s, 90, 520, 900, 40, "식 없는 경로  ·  PAE(식 있음)는 대비·전망으로만", 15, C["rose"])
+    p()
+
+    # ===== 4 Motivation =====
     s = blank(prs)
     topbar(s, "A", "왜 이 연구를 하는가", "학습 안에서는 잘 맞아도, 밖에서는 가정이 예측을 가른다")
     pic(s, "motivation_futures.png", 60, 150, 780, 300)
@@ -207,114 +256,24 @@ def build():
     add_text(s, 70, 530, 760, 50, "출처: 외삽 문헌조사 발표", 12, C["grey"])
     foot(s, p())
 
-    # ===== 3b Bridge to framework =====
+    # ===== 5 Now PP stage =====
     s = blank(prs)
-    topbar(s, "A", "그래서 무엇을 하고 싶은가", "앞 장 의사결정 루트를 말로 풀어 쓰면")
-    rect(s, 70, 145, 1140, 88, C["navy"], None, True)
-    add_text(
-        s,
-        95,
-        160,
-        1090,
-        60,
-        "가정을 숨기지 않고, 관측으로 정당화되는 수준만 쓰며,\n틀리면 줄이거나 멈추는 외삽 시스템을 만들고 싶다.",
-        16,
-        C["white"],
-        True,
-    )
-
-    # left PAE
-    rect(s, 70, 265, 545, 285, C["white"], C["line"], True)
-    rect(s, 70, 265, 545, 72, C["orange"])
-    add_text(s, 95, 278, 120, 22, "PATH A", 11, C["pink"], True)
-    add_text(s, 95, 300, 490, 28, "식이 있으면  →  PAE", 20, C["white"], True)
-    add_text(
-        s,
-        95,
-        360,
-        490,
-        160,
-        "Equation path\n\n허용된 식을 뼈대로 두고\n부족분만 제한된 NN으로 보정한다.\n이득이 없으면 식을 끈다.",
-        15,
-        C["ink"],
-    )
-    # right PP (emphasized as today)
-    rect(s, 665, 265, 545, 285, C["white"], C["teal"], True)
-    rect(s, 665, 265, 545, 72, C["teal"])
-    add_text(s, 690, 278, 200, 22, "PATH B  ·  TODAY", 11, C["white"], True)
-    add_text(s, 690, 300, 490, 28, "식이 없으면  →  PP", 20, C["white"], True)
-    add_text(
-        s,
-        690,
-        360,
-        490,
-        160,
-        "Equation-free path\n\n경계·이력 같은 약한 prior만 쓰고\n고정 affine + bounded residual로\nNN이 prior를 덮어쓰지 않게 한다.",
-        15,
-        C["ink"],
-    )
-    add_text(
-        s,
-        90,
-        575,
-        1100,
-        30,
-        "이름보다 먼저 기억할 구분  ·  PAE = 식 있음  ·  PP = 식 없음. 이번 발표는 Path B(PP).",
-        14,
-        C["crimson"],
-        True,
-    )
-    foot(s, p())
-
-    # ===== 3c Framework big picture =====
-    s = blank(prs)
-    topbar(s, "0", "만들고 싶은 프레임 (큰그림)", "식 유무로 갈린 뒤, 실행·보증까지 이어진다")
-    # top: observation -> branch
-    rect(s, 400, 150, 480, 70, C["navy"], None, True)
-    add_text(s, 420, 168, 440, 40, "관측 · 경계 · 도메인 지식", 16, C["white"], True, "center")
-    # diamond-like question
-    rect(s, 430, 245, 420, 55, C["crimson"], None, True)
-    add_text(s, 450, 258, 380, 35, "후보식이 관측으로 정당화되는가?", 14, C["white"], True, "center")
-    # left PAE right PP
-    rect(s, 70, 340, 520, 160, C["white"], C["orange"], True)
-    rect(s, 70, 340, 12, 160, C["orange"])
-    add_text(s, 100, 355, 460, 30, "YES → PAE (식 있는 경로)", 17, C["orange"], True)
-    add_text(s, 100, 400, 460, 80, "식 검증·조립 + 제한된 NN 보정\nwrong prior / prior-off 안전장치", 14, C["ink"])
-    rect(s, 690, 340, 520, 160, C["white"], C["teal"], True)
-    rect(s, 690, 340, 12, 160, C["teal"])
-    add_text(s, 720, 355, 460, 30, "NO → PP (식 없는 경로)", 17, C["teal"], True)
-    add_text(s, 720, 400, 460, 80, "equation-free 외삽 안전장치\n약한 prior를 NN이 덮어쓰지 않게", 14, C["ink"])
-    # assurance
-    rect(s, 250, 530, 780, 70, C["wash"], C["navy"], True)
-    add_text(
-        s,
-        280,
-        548,
-        720,
-        40,
-        "그다음 공통: Assurance — 믿기 / 불확실성 / 보류",
-        15,
-        C["navy"],
-        True,
-        "center",
-    )
-    foot(s, p())
-
-    # ===== 3d Now PP stage =====
-    s = blank(prs)
-    topbar(s, "0", "그중 지금 어디인가", "식 없는 경로(PP)를 먼저 독립 논문으로 닫는다")
+    topbar(s, "A", "그중 지금 어디인가", "식 없는 경로(PP)를 먼저 독립 논문으로 닫는다")
     stages = [
-        ("지금", "PP", "식 없음\nequation-free\n약한 prior 실행\n← 이번 범위", C["teal"], True),
-        ("다음", "PAE", "식 있음\n식+NN 보정\n라우팅·prior-off", C["orange"], False),
-        ("통합", "박사", "식 유무 분기\n+ Assurance\n한 프레임", C["navy"], False),
+        ("지금", "PP", "식 없음  ·  equation-free\n약한 prior 실행\n이번 발표 범위", C["teal"], True),
+        ("다음", "PAE", "식 있음  ·  식+NN\n라우팅 · prior-off", C["orange"], False),
+        ("통합", "박사", "식 유무 분기\n+ Assurance", C["navy"], False),
     ]
     for i, (tag, title, body, col, now) in enumerate(stages):
         x = 80 + i * 390
         rect(s, x, 175, 360, 300, C["white"], C["crimson"] if now else C["line"], True)
-        rect(s, x, 175, 360, 56, col)
-        add_text(s, x + 20, 189, 100, 28, tag, 14, C["white"], True)
-        add_text(s, x + 120, 189, 220, 28, title, 18, C["white"], True)
-        add_text(s, x + 24, 255, 310, 180, body, 16, C["ink"])
+        rect(s, x, 175, 8, 300, col)
+        add_text(s, x + 28, 195, 100, 24, tag, 12, col, True)
+        add_text(s, x + 28, 235, 300, 40, title, 28, C["ink"], True)
+        add_text(s, x + 28, 295, 300, 120, body, 15, C["grey"])
+        if now:
+            rect(s, x + 28, 420, 140, 28, C["crimson"], None, True)
+            add_text(s, x + 28, 424, 140, 22, "TODAY", 11, C["white"], True, "center")
         if i < 2:
             arrow(s, x + 362, 300, 24, 26, C["line"])
     add_text(
@@ -323,7 +282,7 @@ def build():
         520,
         1100,
         55,
-        "PP는 ‘PAE의 미완성본’이 아니다. 식이 없을 때의 실행기를 먼저 증명하고,\n"
+        "PP는 PAE의 미완성본이 아니다. 식이 없을 때의 실행기를 먼저 증명하고,\n"
         "나중에 식이 있을 때(PAE)가 이 경로를 옵션으로 부른다.",
         14,
         C["ink"],
@@ -331,59 +290,7 @@ def build():
     )
     foot(s, p())
 
-    # ===== 3e PP executive summary =====
-    s = blank(prs)
-    topbar(s, "1", "PP 한 장 요약 (두괄식)", "식 없는 경로의 지금 결론 — 상세는 뒤에서")
-    rect(s, 70, 145, 1140, 95, C["teal"], None, True)
-    add_text(
-        s,
-        95,
-        160,
-        1090,
-        70,
-        "PP(SAAR) = 식 없는(equation-free) 외삽 안전장치.\n"
-        "고정 affine + 제한 residual.  (대비: PAE = 식 있는 경로 — 이번 주결과가 아님)",
-        16,
-        C["white"],
-        True,
-    )
-    bits = [
-        ("한 줄 식", "ŷ = m · softplus(ℓ + cθ)\nm: 경계 · ℓ: 동결 affine\ncθ: dual-scale residual", C["navy"]),
-        ("주 결과", "Sunwoda / RWTH / MICH\n0.934 / 0.842 / 0.751\n최저점을 살린 tradeoff", C["blue"]),
-        ("주장 범위", "연속 열화·경계 prior\nval≈test일 때\n만능 SOTA 아님", C["orange"]),
-        ("아직", "Zn·베어링=한계/확장\nPAE(식 있음) 결과 없음\n분야 Q1–Q2 본선", C["crimson"]),
-    ]
-    for i, (h, b, col) in enumerate(bits):
-        x = 70 + i * 290
-        y = 270
-        rect(s, x, y, 275, 250, C["white"], C["line"], True)
-        rect(s, x, y, 275, 44, col)
-        add_text(s, x + 14, y + 10, 245, 28, h, 15, C["white"], True)
-        add_text(s, x + 14, y + 60, 245, 170, b, 13, C["ink"])
-    add_text(s, 90, 545, 1100, 40, "다음  ·  방법·실험·한계를 상세히. (모티베이션·프레임은 앞에서 끝)", 14, C["grey"], True)
-    foot(s, p())
-
-    # ===== 3f Detail divider =====
-    s = blank(prs)
-    for sh in list(s.shapes):
-        sh._element.getparent().remove(sh._element)
-    rect(s, 0, 0, 1280, 720, C["wash"])
-    rect(s, 0, 0, 1280, 8, C["navy"])
-    add_text(s, 90, 250, 1100, 40, "DETAIL", 16, C["orange"], True)
-    add_text(s, 90, 300, 1100, 70, "이제부터 상세 (PP)", 40, C["ink"], True)
-    add_text(
-        s,
-        90,
-        390,
-        1000,
-        80,
-        "연구 위치·바운더리 → SAAR 구조 → 실험·한계 → 전망",
-        18,
-        C["grey"],
-    )
-    add_text(s, 90, 520, 900, 40, "식 없는 경로를 근거로 풀어 쓴다  ·  PAE(식 있음)는 대비·전망으로만", 15, C["teal"], True)
-    p()
-
+    # ===== 4 Lit gap =====
     # ===== 4 Lit gap =====
     s = blank(prs)
     topbar(s, "B", "연구의 위치", "선행과 겹치는 지점, 그리고 식 없는 경로가 메우는 공백")
