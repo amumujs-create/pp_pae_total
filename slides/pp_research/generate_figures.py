@@ -229,12 +229,8 @@ def fig_equation():
 # ── 4 Main results: bars + table ──────────────────────────────────────────────
 
 def fig_main_results():
-    fig = plt.figure(figsize=(12.0, 5.4))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.35, 1.0], wspace=0.28)
-    ax = fig.add_subplot(gs[0, 0])
-    ax2 = fig.add_subplot(gs[0, 1])
-    ax2.axis("off")
-
+    """Bars only — numeric table lives in PPT as a native table."""
+    fig, ax = plt.subplots(figsize=(11.5, 5.2))
     models = {
         "고정 경계": FIXED,
         "무제한": UNBOUNDED,
@@ -248,49 +244,19 @@ def fig_main_results():
         off = (i - 1.5) * w
         bars = ax.bar(x + off, vals, w, color=colors[i], edgecolor=WHITE, linewidth=0.6, label=name, zorder=2)
         for b, v in zip(bars, vals):
-            ax.text(b.get_x() + b.get_width() / 2, v + 0.015, f"{v:.2f}", ha="center", va="bottom",
-                    fontsize=7.5, color=INK if name != "SAAR" else TEAL, fontweight="bold" if name == "SAAR" else "normal")
+            ax.text(
+                b.get_x() + b.get_width() / 2, v + 0.015, f"{v:.2f}",
+                ha="center", va="bottom", fontsize=8,
+                color=TEAL if name == "SAAR" else INK,
+                fontweight="bold" if name == "SAAR" else "normal",
+            )
     ax.set_xticks(x)
-    ax.set_xticklabels(DATASETS, fontsize=11, fontweight="bold")
+    ax.set_xticklabels(DATASETS, fontsize=12, fontweight="bold")
     ax.set_ylabel(r"$R^2$ (5-run mean)", color=INK)
     ax.set_ylim(0, 1.12)
     spines(ax)
-    ax.legend(frameon=False, ncol=4, loc="upper center", fontsize=9, bbox_to_anchor=(0.5, 1.02))
-    title(ax, "주 결과 — 개발 3데이터")
-
-    # clean table
-    headers = ["모형", "Sun", "RWTH", "MICH", "평균", "최저"]
-    rows = [
-        ["고정 경계", "0.939", "0.878", "0.468", "0.762", "0.468"],
-        ["무제한", "0.718", "0.788", "0.759", "0.755", "0.718"],
-        ["거리보정", "0.894", "0.800", "0.736", "0.810", "0.736"],
-        ["SAAR", "0.934", "0.842", "0.751", "0.842", "0.751"],
-    ]
-    tbl = ax2.table(
-        cellText=rows,
-        colLabels=headers,
-        loc="center",
-        cellLoc="center",
-        colLoc="center",
-        bbox=[0.0, 0.15, 1.0, 0.75],
-    )
-    tbl.auto_set_font_size(False)
-    tbl.set_fontsize(10)
-    for (r, c), cell in tbl.get_celld().items():
-        cell.set_edgecolor(RULE)
-        cell.set_linewidth(0.8)
-        cell.set_height(0.14)
-        if r == 0:
-            cell.set_facecolor(INK)
-            cell.set_text_props(color=WHITE, fontweight="bold", fontsize=9)
-        elif r == 4:
-            cell.set_facecolor("#DCEBEB")
-            cell.set_text_props(color=TEAL, fontweight="bold")
-        else:
-            cell.set_facecolor(WHITE)
-            cell.set_text_props(color=INK)
-    ax2.text(0.5, 0.05, "최저점(MICH)을 살린 tradeoff  ·  확증 cohort는 별도",
-             ha="center", color=MUTED, fontsize=9, transform=ax2.transAxes)
+    ax.legend(frameon=False, ncol=4, loc="upper center", fontsize=10, bbox_to_anchor=(0.5, 1.02))
+    title(ax, "주 결과 — 개발 3데이터 (막대)")
     save(fig, "results_panel.png")
 
 

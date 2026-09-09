@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""~12-slide SAAR briefing — sharp data figures, minimal chrome."""
+"""11-slide SAAR briefing — charts as PNG, tables as native PPT tables."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_CONNECTOR
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.ns import qn
 from pptx.util import Pt
 
@@ -29,6 +29,9 @@ C = {
     "muted": RGBColor(0x55, 0x55, 0x55),
     "rule": RGBColor(0xD0, 0xD0, 0xD0),
     "teal": RGBColor(0x0A, 0x5C, 0x5C),
+    "soft": RGBColor(0xF2, 0xF2, 0xF0),
+    "soft_teal": RGBColor(0xDC, 0xEB, 0xEB),
+    "red": RGBColor(0x9B, 0x1C, 0x1C),
     "white": RGBColor(0xFF, 0xFF, 0xFF),
 }
 
@@ -83,6 +86,63 @@ def pic(slide, name, left, top, width, height):
     return True
 
 
+def add_table(
+    slide,
+    left,
+    top,
+    width,
+    height,
+    headers,
+    rows,
+    *,
+    font_size=12,
+    highlight_last=False,
+    red_cols=None,
+):
+    """Native PowerPoint table — not a raster image."""
+    red_cols = red_cols or set()
+    nrows = 1 + len(rows)
+    ncols = len(headers)
+    table = slide.shapes.add_table(nrows, ncols, px(left), px(top), px(width), px(height)).table
+
+    # equal-ish widths; first col a bit wider if text-heavy
+    for j in range(ncols):
+        table.columns[j].width = px(width / ncols)
+
+    def fill_cell(cell, text, *, fill=None, color=None, bold=False, size=None, align="center"):
+        cell.text = ""
+        p = cell.text_frame.paragraphs[0]
+        p.alignment = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER, "right": PP_ALIGN.RIGHT}[align]
+        run = p.add_run()
+        run.text = str(text)
+        set_run(run, size=size or font_size, color=color or C["ink"], bold=bold)
+        cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+        if fill is not None:
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = fill
+        else:
+            cell.fill.background()
+
+    for j, h in enumerate(headers):
+        fill_cell(table.cell(0, j), h, fill=C["ink"], color=C["white"], bold=True, size=font_size)
+
+    for i, row in enumerate(rows):
+        last = highlight_last and i == len(rows) - 1
+        bg = C["soft_teal"] if last else (C["soft"] if i % 2 else C["white"])
+        for j, val in enumerate(row):
+            col = C["teal"] if last else (C["red"] if j in red_cols else C["ink"])
+            fill_cell(
+                table.cell(i + 1, j),
+                val,
+                fill=bg,
+                color=col,
+                bold=last or j in red_cols or j == 0,
+                size=font_size,
+                align="left" if j in (0, 2, 3) and ncols >= 4 else "center",
+            )
+    return table
+
+
 def head(slide, title, sub=""):
     rect(slide, 0, 0, 1280, 4, C["teal"])
     add_text(slide, 48, 22, 1180, 34, title, 22, C["ink"], True)
@@ -90,7 +150,7 @@ def head(slide, title, sub=""):
         add_text(slide, 48, 56, 1180, 20, sub, 12, C["muted"])
 
 
-def foot(slide, n, total=12):
+def foot(slide, n, total=11):
     line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(48), px(680), px(1232), px(680))
     line.line.color.rgb = C["rule"]
     line.line.width = Pt(0.75)
@@ -141,59 +201,135 @@ def build():
     add_text(s, 100, 510, 1080, 22, "2026.09.09", 13, C["muted"], False, "center")
     p()
 
-    # 2 Route
+    # 2 Route (diagram)
     s = blank(prs)
     head(s, "연구 루트", "외삽을 범용화하고, 식 유무로 경로만 가른다")
     pic(s, "research_route.png", 40, 90, 1200, 540)
     foot(s, p(), TOTAL)
 
-    # 3 Problem
+    # 3 Problem (chart)
     s = blank(prs)
     head(s, "문제", "support 밖에서는 데이터가 아니라 가정이 방향을 정한다")
     pic(s, "nn_vs_saar_curves.png", 50, 90, 1180, 540)
     foot(s, p(), TOTAL)
 
-    # 4 Method
+    # 4 Method (diagram)
     s = blank(prs)
     head(s, "방법 — SAAR", "동결 affine + dual-scale residual  ·  equation-free")
     pic(s, "pp_equation_panel.png", 40, 90, 1200, 520)
     foot(s, p(), TOTAL)
 
-    # 5 Now conclusion (KPI)
+    # 5 KPI — native table + small chart
     s = blank(prs)
     head(s, "지금 결론", "개발 3배터리 주표")
-    pic(s, "summary_executive.png", 40, 100, 1200, 500)
+    pic(s, "summary_executive.png", 40, 95, 700, 420)
+    add_table(
+        s,
+        760,
+        160,
+        460,
+        280,
+        ["데이터", "R²"],
+        [["Sunwoda", "0.934"], ["RWTH", "0.842"], ["MICH", "0.751"], ["평균", "0.842"]],
+        font_size=14,
+        highlight_last=True,
+    )
+    add_text(s, 760, 460, 460, 60, "만능 SOTA 아님  ·  PAE 결과는 이번 표에 없음", 12, C["muted"])
     foot(s, p(), TOTAL)
 
-    # 6 Main results table+bars
+    # 6 Main results — chart + native table
     s = blank(prs)
     head(s, "주 결과", "같은 구조 · Sunwoda / RWTH / MICH")
-    pic(s, "results_panel.png", 30, 85, 1220, 550)
+    pic(s, "results_panel.png", 30, 90, 720, 480)
+    add_table(
+        s,
+        760,
+        120,
+        470,
+        320,
+        ["모형", "Sun", "RWTH", "MICH", "평균", "최저"],
+        [
+            ["고정 경계", "0.939", "0.878", "0.468", "0.762", "0.468"],
+            ["무제한", "0.718", "0.788", "0.759", "0.755", "0.718"],
+            ["거리보정", "0.894", "0.800", "0.736", "0.810", "0.736"],
+            ["SAAR", "0.934", "0.842", "0.751", "0.842", "0.751"],
+        ],
+        font_size=11,
+        highlight_last=True,
+    )
+    add_text(s, 760, 460, 470, 50, "최저(MICH)를 살린 tradeoff  ·  확증 cohort 별도", 11, C["muted"])
     foot(s, p(), TOTAL)
 
-    # 7 Ablation
+    # 7 Ablation (charts)
     s = blank(prs)
     head(s, "Ablation", "고정 경계 → SAAR 이동  ·  평균–최저 tradeoff")
     pic(s, "ablation_panel.png", 30, 85, 1220, 550)
     foot(s, p(), TOTAL)
 
-    # 8 Competitors — TabPFN included in the same figure
+    # 8 Competitors (charts)
     s = blank(prs)
     head(s, "비교", "양의 8곳 × 전 알고리즘 (SAAR … TabPFN 한 그래프)")
     pic(s, "competitor_bars.png", 40, 78, 1200, 560)
     foot(s, p(), TOTAL)
 
-    # 9 Robustness
+    # 9 Robustness (charts)
     s = blank(prs)
-    head(s, "안정성", "bootstrap CI  ·  MICH unit $R^2$")
+    head(s, "안정성", "bootstrap CI  ·  MICH unit R²")
     pic(s, "robustness_panel.png", 30, 90, 1220, 530)
     foot(s, p(), TOTAL)
 
-    # 10 Failures + limits
+    # 10 Failures + limits — native tables only
     s = blank(prs)
     head(s, "실패 · 경계", "표로 남긴 한계  ·  주장 / 비주장")
-    pic(s, "fail_cases.png", 30, 85, 620, 520)
-    pic(s, "status_compact.png", 660, 85, 560, 520)
+    add_text(s, 48, 90, 600, 24, "실패 설정", 14, C["ink"], True)
+    add_table(
+        s,
+        48,
+        120,
+        1184,
+        240,
+        ["설정", "기본 PP R²", "해석", "조치"],
+        [
+            ["MICH (기본)", "-1.522", "관계 이동 · 보정 꺼짐", "경계 + dual-scale → 0.751"],
+            ["XJTU", "-1.229", "val/test 이동 반대", "거절 / 옮기지 않음"],
+            ["FEMTO", "-1.378", "끝점 희소 · 채널 이슈", "설계 미성숙 · 보류"],
+            ["NASA milling", "-4.826", "메커니즘 전이 · unit 극소", "사전 Fail / ABSTAIN"],
+        ],
+        font_size=12,
+        red_cols={1},
+    )
+    add_text(s, 48, 390, 560, 24, "주장하는 것", 13, C["teal"], True)
+    add_table(
+        s,
+        48,
+        420,
+        560,
+        200,
+        ["항목", "내용"],
+        [
+            ["주표", "0.934 / 0.842 / 0.751"],
+            ["범위", "연속 열화 · unit-disjoint · hull-out"],
+            ["방법", "동결 affine + dual-scale residual"],
+            ["타깃", "분야 Q1–Q2"],
+        ],
+        font_size=11,
+    )
+    add_text(s, 640, 390, 560, 24, "아직 주장하지 않는 것", 13, C["red"], True)
+    add_table(
+        s,
+        640,
+        420,
+        592,
+        200,
+        ["항목", "내용"],
+        [
+            ["Zn / Na", "사후 개발 — untouched 확증 아님"],
+            ["교차도메인", "XJTU · FEMTO 우월성 전"],
+            ["PAE", "식 라우팅 실험 없음 · 표 분리"],
+            ["만능 SOTA", "모든 OOD 1등 아님"],
+        ],
+        font_size=11,
+    )
     foot(s, p(), TOTAL)
 
     # 11 Dual path + takeaway
