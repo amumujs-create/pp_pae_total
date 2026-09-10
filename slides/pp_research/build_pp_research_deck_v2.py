@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAAR briefing — data charts (PNG) + native PPT text/tables only.
+"""PP-X briefing — data charts (PNG) + native PPT text/tables only.
 
 No boxed diagram images. Journal-style plots from numbers only.
 """
@@ -35,6 +35,7 @@ C = {
     "orange": RGBColor(0xE6, 0x9F, 0x00),
     "soft": RGBColor(0xF5, 0xF5, 0xF5),
     "soft_blue": RGBColor(0xE8, 0xF1, 0xF8),
+    "soft_orange": RGBColor(0xFD, 0xF4, 0xE3),
     "white": RGBColor(0xFF, 0xFF, 0xFF),
     "red": RGBColor(0x9B, 0x1C, 0x1C),
 }
@@ -67,8 +68,9 @@ def add_text(slide, left, top, width, height, text, size=18, color=None, bold=Fa
     return box
 
 
-def rect(slide, left, top, width, height, fill=None, line=None):
-    sh = slide.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.RECTANGLE, px(left), px(top), px(width), px(height))
+def rect(slide, left, top, width, height, fill=None, line=None, rounded=False):
+    st = MSO_AUTO_SHAPE_TYPE.ROUNDED_RECTANGLE if rounded else MSO_AUTO_SHAPE_TYPE.RECTANGLE
+    sh = slide.shapes.add_shape(st, px(left), px(top), px(width), px(height))
     sh.line.fill.background()
     if fill is None:
         sh.fill.background()
@@ -78,7 +80,55 @@ def rect(slide, left, top, width, height, fill=None, line=None):
     if line is not None:
         sh.line.color.rgb = line
         sh.line.width = Pt(1.25)
+    if rounded:
+        try:
+            sh.adjustments[0] = 0.12
+        except Exception:
+            pass
     return sh
+
+
+def down_arrow(slide, left, top, width, height, fill):
+    sh = slide.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.DOWN_ARROW, px(left), px(top), px(width), px(height))
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = fill
+    sh.line.fill.background()
+    return sh
+
+
+def right_arrow(slide, left, top, width, height, fill):
+    sh = slide.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.RIGHT_ARROW, px(left), px(top), px(width), px(height))
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = fill
+    sh.line.fill.background()
+    return sh
+
+
+def vline(slide, x, y1, y2, color):
+    line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(x), px(y1), px(x), px(y2))
+    line.line.color.rgb = color
+    line.line.width = Pt(1.25)
+    return line
+
+
+def hline(slide, x1, x2, y, color):
+    line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(x1), px(y), px(x2), px(y))
+    line.line.color.rgb = color
+    line.line.width = Pt(1.25)
+    return line
+
+
+def fill_shape_text(sh, text, size=14, color=None, bold=False, align="center"):
+    tf = sh.text_frame
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.clear()
+    p.alignment = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER, "right": PP_ALIGN.RIGHT}[align]
+    run = p.add_run()
+    run.text = text
+    set_run(run, size=size, color=color or C["ink"], bold=bold)
+    tf.auto_size = None
+    sh.word_wrap = True
 
 
 def pic(slide, name, left, top, width, height):
@@ -129,11 +179,11 @@ def head(slide, title, sub=""):
         add_text(slide, 48, 54, 1180, 20, sub, 12, C["muted"])
 
 
-def foot(slide, n, total=11):
+def foot(slide, n, total=23):
     line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(48), px(680), px(1232), px(680))
     line.line.color.rgb = C["rule"]
     line.line.width = Pt(0.75)
-    add_text(slide, 48, 686, 800, 14, "SPS Lab  ·  Assumption-Aware Extrapolation  ·  SAAR", 9, C["muted"])
+    add_text(slide, 48, 686, 800, 14, "SPS Lab  ·  Prior-Adaptive Extrapolation  ·  PP-X v1.1", 9, C["muted"])
     add_text(slide, 1100, 684, 100, 16, f"{n}/{total}", 10, C["muted"], True, "right")
 
 
@@ -151,7 +201,7 @@ def build():
     prs.slide_width = W
     prs.slide_height = H
     n = 0
-    TOTAL = 11
+    TOTAL = 27
 
     def p():
         nonlocal n
@@ -173,168 +223,622 @@ def build():
     logo = ASSETS / "sps_lab_logo.png"
     if logo.exists():
         s.shapes.add_picture(str(logo), px(860), px(58), px(320), px(64))
-    add_text(s, 100, 240, 1080, 48, "가정 인식형 외삽", 34, C["ink"], True, "center")
-    add_text(s, 100, 300, 1080, 28, "Assumption-Aware Extrapolation", 16, C["muted"], False, "center")
-    add_text(s, 100, 360, 1080, 28, "식 없는 경로  ·  SAAR", 16, C["blue"], True, "center")
-    add_text(s, 100, 460, 1080, 24, "Smart Production Systems Lab.  ·  박사과정 박형배", 14, C["ink"], False, "center")
-    add_text(s, 100, 510, 1080, 22, "2026.09.09", 13, C["muted"], False, "center")
+    add_text(s, 80, 220, 1120, 40, "Prior-Adaptive Extrapolation", 28, C["ink"], True, "center")
+    add_text(s, 80, 268, 1120, 36, "for Robust Prediction Beyond Observed Support", 20, C["ink"], True, "center")
+    add_text(s, 80, 330, 1120, 28, "관측된 support 밖에서의 강건 예측", 15, C["muted"], False, "center")
+    add_text(s, 80, 390, 1120, 28, "식 없는 경로  ·  PP-X v1.1", 16, C["blue"], True, "center")
+    add_text(s, 80, 470, 1120, 24, "Smart Production Systems Lab.  ·  박사과정 박진서", 14, C["ink"], False, "center")
+    add_text(s, 80, 520, 1120, 22, "2026.09.09", 13, C["muted"], False, "center")
     p()
 
-    # 2 Route — PPT text only (no diagram image)
+    # 2 Problem + background
     s = blank(prs)
-    head(s, "연구 루트", "외삽을 범용화하고, 식 유무로 경로만 가른다")
-    add_text(s, 48, 100, 1180, 28, "밖을 지탱하는 것은 데이터가 아니라 가정이다.", 16, C["ink"], True)
-    add_text(s, 48, 145, 1180, 24, "입력: 관측  ·  경계  ·  도메인 지식", 14, C["muted"])
-    add_text(s, 48, 190, 1180, 24, "분기: 후보식이 정당화되는가?", 15, C["ink"], True)
+    head(s, "문제 · 연구 배경", "밖에서는 데이터가 답을 정하지 못한다.  정당화되는 prior에 맞춰 고른다.")
+    pic(s, "nn_vs_saar_curves.png", 36, 86, 640, 400)
+    add_text(s, 36, 492, 640, 36, "점선 왼쪽은 학습, 오른쪽은 그 밖. 제약 없는 NN은 열화 중에도 예측이 되살아난다.", 12, C["muted"])
+
+    rect(s, 696, 86, 548, 132, C["soft"], C["rule"], True)
+    add_text(s, 712, 94, 516, 22, "왜 외삽인가", 13, C["ink"], True)
+    add_text(s, 712, 118, 516, 90, "학습 분포 안에서는 잘 맞혀도, 관측되지 않은 영역에서는 성능이 급히 떨어질 수 있다. 열화·RUL·피로균열은 실제 시점이 학습 support 밖인 경우가 많아, 보간보다 밖에서의 예측이 중요하다.", 12, C["ink"])
+
+    rect(s, 696, 230, 548, 132, C["soft_orange"], C["orange"], True)
+    add_text(s, 712, 238, 516, 22, "prior는 일정하지 않다", 13, C["orange"], True)
+    add_text(s, 712, 262, 516, 90, "같은 데이터라도 prior가 바뀌면 밖으로 나가는 곡선이 달라진다. 어떤 문제는 방향·경계·추세만 알고, 어떤 문제는 식과 적용 조건까지 있다. 맞지 않는 prior를 강제하면 외삽이 나빠진다.", 12, C["ink"])
+
+    rect(s, 696, 374, 548, 154, C["soft_blue"], C["blue"], True)
+    add_text(s, 712, 382, 516, 22, "출발점", 13, C["blue"], True)
+    add_text(s, 712, 408, 516, 108, "맞는 답이 하나가 아니다. 밖을 지탱하는 것은 데이터가 아니라 지금 정당화되는 prior다. prior가 많을수록 좋은 것이 아니라, 그 수준과 신뢰성에 맞춰 외삽 전략을 고른다. 다음 장에서 경로를 나눈다.", 12, C["ink"])
+    foot(s, p(), TOTAL)
+
+    # 4 Research route — full diagram
+    s = blank(prs)
+    head(s, "연구 루트", "그래서 후보식이 정당화되는지에 따라 경로를 나눈다")
+
+    chips = [("관측", 200), ("경계", 510), ("도메인 지식", 820)]
+    for label, x in chips:
+        ch = rect(s, x, 92, 260, 40, C["soft"], C["ink"], True)
+        fill_shape_text(ch, label, 14, C["ink"], True)
+        vline(s, x + 130, 132, 156, C["rule"])
+    hline(s, 330, 950, 156, C["rule"])
+    vline(s, 640, 156, 170, C["rule"])
+    down_arrow(s, 624, 168, 32, 12, C["muted"])
+
+    dec = rect(s, 310, 184, 660, 48, C["ink"], None, True)
+    fill_shape_text(dec, "후보식이 정당화되는가?", 17, C["white"], True)
+
+    vline(s, 340, 232, 248, C["rule"])
+    vline(s, 940, 232, 248, C["rule"])
+    hline(s, 340, 940, 248, C["rule"])
+    down_arrow(s, 324, 248, 32, 16, C["blue"])
+    down_arrow(s, 924, 248, 32, 16, C["orange"])
+    add_text(s, 70, 228, 120, 20, "NO", 12, C["blue"], True, "right")
+    add_text(s, 1090, 228, 120, 20, "YES", 12, C["orange"], True, "left")
+
+    rect(s, 70, 272, 540, 200, C["soft_blue"], C["blue"], True)
+    rect(s, 70, 272, 8, 200, C["blue"])
+    badge = rect(s, 456, 286, 130, 24, C["blue"], None, True)
+    fill_shape_text(badge, "이번 발표", 10, C["white"], True)
+    add_text(s, 98, 284, 340, 32, "PP-X", 24, C["blue"], True)
+    add_text(s, 98, 322, 480, 20, "equation-free", 12, C["muted"])
+    add_text(s, 98, 352, 490, 22, "prior-residual core", 15, C["ink"])
+    add_text(s, 98, 384, 490, 22, "+ evidence-selected executor", 15, C["ink"])
+    add_text(s, 98, 426, 490, 22, "v1.0 core + validation safety gate  ·  v1.1", 14, C["blue"], True)
+
+    rect(s, 670, 272, 540, 200, C["soft_orange"], C["orange"], True)
+    rect(s, 670, 272, 8, 200, C["orange"])
+    nxt = rect(s, 1056, 286, 130, 24, C["orange"], None, True)
+    fill_shape_text(nxt, "다음 논문", 10, C["white"], True)
+    add_text(s, 698, 284, 340, 32, "PAE", 24, C["orange"], True)
+    add_text(s, 698, 322, 480, 20, "equation-aware", 12, C["muted"])
+    add_text(s, 698, 352, 490, 22, "허용된 식 + 제한 NN", 15, C["ink"])
+    add_text(s, 698, 384, 490, 22, "이득 없으면 PP-X로 되돌림", 15, C["ink"])
+    add_text(s, 698, 426, 490, 22, "LLM · 온톨로지 · source gate", 14, C["orange"], True)
+
+    vline(s, 340, 472, 498, C["rule"])
+    vline(s, 940, 472, 498, C["rule"])
+    hline(s, 340, 940, 498, C["rule"])
+    down_arrow(s, 624, 498, 32, 12, C["muted"])
+
+    end = rect(s, 220, 518, 840, 44, C["soft"], C["ink"], True)
+    fill_shape_text(end, "Assurance    ·    믿기  /  보류  /  거절    →    박사논문에서 두 경로 통합", 14, C["ink"], True)
+    add_text(s, 70, 578, 1140, 24, "오늘은 왼쪽만 간다.  PAE와 Assurance는 지도에만 찍는다.", 13, C["muted"], False, "center")
+    foot(s, p(), TOTAL)
+
+    # 4 Method — current PP-X v1.1
+    s = blank(prs)
+    head(s, "방법 — PP-X v1.1", "한 네트워크 안에서 prior를 검증하고, 실패하면 exact MLP로 후퇴")
+    pic(s, "ppx_core.png", 20, 78, 760, 400)
     add_table(
         s,
-        48,
-        240,
-        1184,
-        220,
-        ["분기", "경로", "내용", "단계"],
+        790,
+        86,
+        448,
+        248,
+        ["단계", "v1.1이 하는 일"],
         [
-            ["YES", "PAE", "허용된 식 + 제한 NN", "다음 논문"],
-            ["NO", "SAAR", "동결 affine + dual-scale residual", "이번 발표 / 논문 1"],
+            ["(a) prior", "얼린 affine 꼬리 후보. trust>0일 때만 반영"],
+            ["(b) residual", "동일 NN이 nonlinear 보정 r을 학습"],
+            ["(c) 출력", "승인: prior+residual · 거절: trust=0 MLP"],
         ],
-        font_size=13,
-        highlight_last=True,
+        font_size=11,
     )
-    add_text(s, 48, 500, 1180, 40, "Assurance: 믿기 / 보류 / 거절  →  박사논문에서 두 경로 통합", 14, C["muted"])
-    foot(s, p(), TOTAL)
-
-    # 3 Problem — data-style curve only
-    s = blank(prs)
-    head(s, "문제", "support 밖에서는 가정이 예측을 가른다")
-    pic(s, "nn_vs_saar_curves.png", 80, 95, 1100, 520)
-    foot(s, p(), TOTAL)
-
-    # 4 Method — PPT text (no boxed figure)
-    s = blank(prs)
-    head(s, "방법 — SAAR", "equation-free  ·  Support-Aware Affine–Residual")
-    add_text(s, 48, 110, 1180, 36, "ŷ = m · softplus( ℓ(z) + cθ(z) )", 20, C["ink"], True, "center")
+    add_table(
+        s,
+        790,
+        348,
+        448,
+        200,
+        ["Safety gate (val만)", "승인 조건"],
+        [
+            ["상대 이득", "matched MLP보다 RMSE 2% 이상↓"],
+            ["유닛 증거", "unit-bootstrap 95% CI 하한 > 0"],
+            ["승인", "trust .02/.05/.10/.20/.40 중 하나"],
+            ["거절", "trust=0 · exact matched MLP"],
+        ],
+        font_size=11,
+    )
     add_text(
         s,
-        48,
-        160,
-        1180,
-        28,
-        "cθ = w·B_L tanh(rθ) + (1−w)·B_H tanh(rθ/B_H)   ·   B_L=2, B_H=6",
-        14,
-        C["muted"],
-        False,
-        "center",
+        20,
+        488,
+        760,
+        88,
+        "(a)와 (b)는 별도 모델이 아니라 같은 네트워크의 두 경로다. validation에서 prior가 matched MLP를 명확히 이길 때만 trust를 남긴다.\n"
+        "근거가 약하면 prior를 제거하고 동일 seed·초기화·optimizer의 trust=0 하위모형을 그대로 출력한다.",
+        12,
+        C["ink"],
     )
+    add_text(s, 20, 600, 1210, 22, "test 예측을 보고 혼합하지 않는다.  승인 실패 → exact matched MLP.  test는 frozen forward만.", 12, C["muted"])
+    foot(s, p(), TOTAL)
+
+    # 5 How the evaluation interval is defined
+    s = blank(prs)
+    head(s, "외삽 구간을 어떻게 정하는가", "학습이 본 건강 범위보다 더 진행된 관측만 점수로 친다")
+    pic(s, "extrapolation_cut.png", 36, 86, 720, 350)
     add_table(
         s,
-        80,
-        230,
-        1120,
-        320,
-        ["항", "역할"],
+        770,
+        88,
+        462,
+        350,
+        ["절차", "내용"],
         [
-            ["m", "경계 / 스케일"],
-            ["ℓ(z)", "동결 affine — 밖으로도 폭주하지 않는 기본 추세"],
-            ["cθ", "dual-scale residual — 가까우면 세밀, 멀면 유한 포화"],
-            ["w(d)", "support 거리 gate — 멀수록 NN 보정 감쇠"],
+            ["1", "경계, 유닛, 시간, 입력, 외삽 좌표를 먼저 고정"],
+            ["2", "학습·검증·시험에 같은 유닛을 넣지 않음"],
+            ["3", "학습에는 본 적 있는 건강 구간만 사용"],
+            ["4", "검증·시험에는 그 범위 밖 관측만 남김"],
+            ["5", "정규화 통계는 학습 분할에서만 계산"],
+            ["6", "모델과 executor는 검증에서만 선택"],
+            ["7", "고정한 시험 분할은 한 번만 예측"],
         ],
-        font_size=14,
+        font_size=11,
+    )
+    add_text(
+        s,
+        36,
+        452,
+        1200,
+        100,
+        "세로선은 학습에서 관측한 최저 건강이다. 그보다 더 나빠진 구간(오른쪽)만 검증·시험 점수에 넣는다.\n같은 유닛의 미래 값, 최종 수명, 시험 궤적에서 만든 통계는 입력에 쓰지 않는다. 이 조건을 어기면 내삽 평가가 된다.",
+        13,
+        C["ink"],
+    )
+    add_text(s, 36, 562, 1200, 28, "자르는 규칙은 같다. 외삽 geometry는 셋마다 다르므로 다음 장에서 1D와 다차원을 구분해 적는다.", 12, C["muted"])
+    foot(s, p(), TOTAL)
+
+    # Quantification of the cut
+    s = blank(prs)
+    head(s, "외삽을 숫자로 확인하는 방법", "1D 열화좌표 기준이다. 전체 feature-space hull 밖이라고 말하지 않는다.")
+    pic(s, "hull_distance.png", 20, 82, 520, 400)
+    add_table(
+        s,
+        550,
+        82,
+        690,
+        380,
+        ["셋", "1D Hull", "거리", "성격"],
+        [
+            ["선우다", "100%", "4.42", "미지 셀 · 늦은 건강. 매우 명확"],
+            ["아헨", "100%", "2.87", "미지 셀 · 늦은 건강. 매우 명확"],
+            ["MIT 2019", "100%", "5.55", "1D 건강 support 밖"],
+            ["미시간", "100%", "3.43", "미지 셀 · 늦은 건강"],
+            ["NASA 실험셀", "100%", "2.01", "미지 셀 · 건강 tail"],
+            ["화중 배터리", "100%", "1.61", "미지 유닛 · 충전법/말기. 1D 기준"],
+            ["알루미늄 균열", "100%", "1.62", "미지 시편 · 균열 tail"],
+            ["MIT 배치2", "100%", "1.90", "1D 100% · PCA2 0% · PCA3 99.2%"],
+            ["항공기 엔진", "100%", "0.23", "1D 100% · PCA2 0% · PCA3 83.6% · 조건"],
+        ],
+        font_size=10,
+    )
+    add_text(
+        s,
+        20,
+        498,
+        1240,
+        110,
+        "오늘 그림에는 1D ordered-coordinate 기준의 엄격한 외삽만 남긴다. XJTU·FEMTO·NASA milling은 도메인/재료 transfer라 이 표에 없다.\n1D Hull-out 100%는 ‘선언한 건강·균열·조건 축’ 밖이지, 전체 특징공간 convex hull 밖이 아니다. 배치2와 엔진은 PCA 2D에서 0%다.\n엔진은 거리 0.23 SD·Target-out 0%라 먼 수명 외삽이 아니라 운전조건(regime) 외삽이다.",
+        12,
+        C["ink"],
     )
     foot(s, p(), TOTAL)
 
-    # 5 KPI — bars + table
+    # Protocol — after method, before scores
     s = blank(prs)
-    head(s, "지금 결론", "개발 3배터리 주표")
-    pic(s, "summary_bars.png", 60, 110, 620, 420)
+    head(s, "프로토콜", "점수는 이 범위 안에서만 읽는다  ·  적합도는 허가증이지 성적표가 아니다")
+    add_table(
+        s,
+        48,
+        100,
+        1184,
+        250,
+        ["규칙", "의미", "깨지면"],
+        [
+            ["unit-disjoint", "train / val / test 셀이 겹치지 않음", "같은 유닛 누수"],
+            ["hull-out", "선언한 1D 열화좌표에서 test가 train 밖", "내삽으로 바뀜"],
+            ["val-only", "게이트·보정을 val에서만 고름", "test로 튜닝"],
+            ["Pass / Weak / Fail", "운행 허가. Fail이면 예측을 옮기지 않음", "억지 점수"],
+        ],
+        font_size=13,
+    )
+    add_table(
+        s,
+        48,
+        380,
+        580,
+        220,
+        ["In scope", "예"],
+        [
+            ["1D late-tail", "Sun · RWTH · MICH · MATR2019 · NASA · Virkler · HUST"],
+            ["1D + 다차원 설명 필요", "MATRb2 · N-CMAPSS (PCA2는 0%)"],
+            ["executor 선택", "train/val · group-LOO only"],
+        ],
+        font_size=12,
+    )
+    add_table(
+        s,
+        652,
+        380,
+        580,
+        220,
+        ["오늘 표에 없음", "이유"],
+        [
+            ["전체 feature hull", "1D 100% ≠ 다차원 hull 밖"],
+            ["도메인 / 재료 transfer", "조건·끝점·재질 이동은 다른 종류"],
+            ["C-MAPSS FD002/004", "조건 hull은 강하나 이번 주표 밖"],
+        ],
+        font_size=12,
+    )
+    foot(s, p(), TOTAL)
+
+    # 6 Main results — PP-X portfolio
+    s = blank(prs)
+    head(s, "주 결과 — PP-X v1.0", "1D 열화좌표 기준의 엄격한 외삽만.  확증 cohort 아님  ·  PAE 없음")
+    pic(s, "ppx_portfolio.png", 30, 82, 680, 390)
     add_table(
         s,
         720,
-        160,
-        500,
-        280,
-        ["Dataset", "R²"],
-        [["Sunwoda", "0.934"], ["RWTH", "0.842"], ["MICH", "0.751"], ["Mean", "0.842"]],
-        font_size=16,
-        highlight_last=True,
+        88,
+        512,
+        384,
+        ["셋", "Executor", "R²"],
+        [
+            ["화중 배터리", "transport", "0.958"],
+            ["선우다 상용셀", "fixed BQ", "0.939"],
+            ["항공기 엔진", "multiscale", "0.937"],
+            ["알루미늄 균열", "gated residual", "0.888"],
+            ["아헨 배터리", "fixed BQ", "0.878"],
+            ["MIT 배치2", "decay+transport", "0.862"],
+            ["미시간 배터리", "dual-scale", "0.751"],
+            ["NASA 실험셀", "multiscale", "0.584"],
+            ["MIT 2019", "cal. latent", "0.466"],
+        ],
+        font_size=10,
     )
-    add_text(s, 720, 470, 500, 50, "만능 SOTA 아님  ·  PAE는 이번 표에 없음", 12, C["muted"])
+    rect(s, 36, 488, 400, 168, C["soft_blue"], C["blue"], True)
+    rect(s, 36, 488, 8, 168, C["blue"])
+    add_text(s, 56, 498, 360, 22, "Li 배터리", 13, C["blue"], True)
+    add_text(
+        s,
+        56,
+        524,
+        360,
+        120,
+        "화중·선우다·아헨·미시간 리튬셀\nMIT 수명 벤치 (2019 / 배치2)\nNASA 실험용 18650  (로켓 아님)",
+        11,
+        C["ink"],
+    )
+    rect(s, 452, 488, 380, 168, C["soft"], C["ink"], True)
+    rect(s, 452, 488, 8, 168, C["ink"])
+    add_text(s, 472, 498, 340, 22, "균열", 13, C["ink"], True)
+    add_text(
+        s,
+        472,
+        524,
+        340,
+        110,
+        "알루미늄 판에 금이 감\n항공기 재료 피로실험\n배터리 아님",
+        12,
+        C["ink"],
+    )
+    rect(s, 848, 488, 396, 168, C["soft_orange"], C["orange"], True)
+    rect(s, 848, 488, 8, 168, C["orange"])
+    add_text(s, 868, 498, 356, 22, "엔진", 13, C["orange"], True)
+    add_text(
+        s,
+        868,
+        524,
+        356,
+        110,
+        "항공기 엔진 시뮬레이터\n처음 보는 비행조건\n실제 비행기 데이터가 아님",
+        12,
+        C["ink"],
+    )
     foot(s, p(), TOTAL)
 
-    # 6 Main results
+    # v1.1 model explanation — retain all v1.0 ablation slides below.
     s = blank(prs)
-    head(s, "주 결과", "같은 구조 · Sunwoda / RWTH / MICH")
-    pic(s, "results_panel.png", 40, 95, 700, 480)
+    head(s, "PP-X v1.1 — 무엇이 달라졌나", "prior를 더 복잡하게 하지 않고, 사용할 권한을 검증한다")
+    add_text(s, 48, 78, 1184, 30, "하나의 네트워크 안에 prior 경로와 exact matched-MLP 하위모형이 함께 있다.", 15, C["ink"], True)
+    rect(s, 48, 134, 340, 330, C["soft_orange"], C["orange"], True)
+    add_text(s, 70, 150, 296, 26, "① 후보 생성", 18, C["orange"], True)
+    add_text(s, 70, 198, 296, 220, "trust > 0\n동결 affine prior\n+ nonlinear residual\n\ntrust = 0\n동일 초기화·optimizer의\nmatched MLP", 15, C["ink"], False, "center")
+    add_text(s, 398, 270, 42, 40, "→", 25, C["muted"], True, "center")
+    rect(s, 446, 134, 340, 330, C["soft_blue"], C["blue"], True)
+    add_text(s, 468, 150, 296, 26, "② validation 승인", 18, C["blue"], True)
+    add_text(s, 468, 198, 296, 220, "MLP 대비 RMSE\n상대 2% 이상 개선\n+\nphysical-unit bootstrap\n95% CI 하한 > 0\n+\nvalidation unit ≥ 3", 14, C["ink"], False, "center")
+    add_text(s, 796, 270, 42, 40, "→", 25, C["muted"], True, "center")
+    rect(s, 844, 134, 388, 330, C["soft"], C["ink"], True)
+    add_text(s, 866, 150, 344, 26, "③ 한 경로만 출력", 18, C["ink"], True)
+    add_text(s, 866, 198, 344, 220, "통과  prior trust 유지\n\n실패  trust = 0\nexact matched MLP\n\n※ test 예측을 보고\n혼합하지 않는다", 15, C["ink"], False, "center")
+    rect(s, 48, 500, 1184, 76, C["ink"], None, True)
+    add_text(s, 70, 517, 1140, 46, "v1.0 = prior executor의 구조를 검증   ·   v1.1 = 그 prior를 새 고호트에서 켜도 되는지 검증", 15, C["white"], True, "center")
+    add_text(s, 48, 590, 1184, 26, "주의  Stanford 결과를 본 뒤 만든 post-test development다. 기존 v1.0 주표와 ablation을 소급 대체하지 않는다.", 12, C["red"], True)
+    foot(s, p(), TOTAL)
+
+    # v1.1 complete trust/architecture ablation
+    s = blank(prs)
+    head(s, "Ablation — PP-X v1.1 trust · architecture", "2고호트 × 6 trust × 4 architecture × 5 seeds = 240 fits")
+    pic(s, "v11_complete_trust.png", 28, 82, 760, 400)
     add_table(
         s,
-        760,
-        130,
-        470,
-        300,
-        ["Model", "Sun", "RWTH", "MICH", "Mean", "Min"],
+        808,
+        92,
+        420,
+        350,
+        ["Cohort", "Val-best trust", "Test-best*"],
         [
-            ["Fixed", "0.939", "0.878", "0.468", "0.762", "0.468"],
-            ["Unbounded", "0.718", "0.788", "0.759", "0.755", "0.718"],
-            ["Distance", "0.894", "0.800", "0.736", "0.810", "0.736"],
-            ["SAAR", "0.934", "0.842", "0.751", "0.842", "0.751"],
+            ["Stanford", "0", ".20"],
+            ["ISU 250mAh", ".02", ".10"],
+            ["Grid", "w 16/32", "lr .0005/.001"],
+            ["Seeds", "42–46", "5/arm"],
+        ],
+        font_size=12,
+        red_cols={2},
+    )
+    add_text(s, 808, 458, 420, 42, "* test-best는 설명용 사후 dose-response이며 선택에 사용하지 않음", 11, C["red"], True)
+    add_text(
+        s,
+        48,
+        510,
+        1184,
+        82,
+        "Stanford  validation은 trust=0을 선호하지만 test dose 최고는 .20(R² .094).  ISU는 validation .02, test dose 최고 .10(R² .557).\n"
+        "결론  trust의 test 최적점은 고호트마다 다르고 validation 최적점과도 다르다. test를 보고 trust를 고르면 누수다.",
+        13,
+        C["ink"],
+    )
+    add_text(s, 48, 606, 1184, 22, "모든 구현 trust×width×learning-rate 조합을 같은 5 seeds로 재학습했다.", 12, C["muted"], True)
+    foot(s, p(), TOTAL)
+
+    # v1.1 gate factorial and seed stability
+    s = blank(prs)
+    head(s, "Ablation — PP-X v1.1 gate 2×2 · seed", "2% margin on/off × unit-bootstrap on/off · exact fallback")
+    pic(s, "v11_complete_gate_seed.png", 28, 82, 760, 390)
+    add_table(
+        s,
+        808,
+        92,
+        420,
+        330,
+        ["Cohort", "Val gain", "Boot 95% CI", "Full gate"],
+        [
+            ["Stanford", "−0.28%", "[−.276,.208]", "reject"],
+            ["ISU 250", "+1.65%", "[−.145,.196]", "reject"],
+            ["Unit wins", "4/8", "32/45", "—"],
+            ["Fallback Δ", "0.0", "0.0", "exact"],
+        ],
+        font_size=10,
+    )
+    add_text(s, 808, 444, 420, 54, "각 gate 단독으로도 두 prior를 거절\nFull gate = matched MLP exact", 13, C["blue"], True)
+    add_text(
+        s,
+        48,
+        510,
+        1184,
+        82,
+        "비용  ISU always-on test R² .555 → full gate .451. 유효한 약한 prior도 놓친다.\n"
+        "Seed  두 고호트 모두 개별 seed 하나는 R²<0. 따라서 ensemble 양수만으로 seed-robust를 주장하지 않는다.",
+        13,
+        C["ink"],
+    )
+    add_text(s, 48, 606, 1184, 22, "기존 v1.0 ablation은 다음 장부터 그대로 유지한다. 이번 두 고호트도 retrospective mechanism evidence다.", 12, C["muted"], True)
+    foot(s, p(), TOTAL)
+
+    # Ablation — dual-scale is one executor
+    s = blank(prs)
+    head(s, "Ablation — dual-scale", "executor 하나  ·  모든 데이터에 켜는 기본값이 아니다")
+    pic(s, "ablation_panel.png", 24, 82, 1232, 430)
+    add_text(
+        s,
+        48,
+        520,
+        580,
+        90,
+        "(a) 결론  고정 bound는 Sun·RWTH에서는 높지만 MICH를 0.468에 묶는다. dual-scale을 켠 뒤에야 MICH가 0.751이 된다.",
+        13,
+        C["ink"],
+    )
+    add_text(
+        s,
+        660,
+        520,
+        572,
+        90,
+        "(b) 결론  평균을 조금 낮추고 최저 점수를 올린 선택이다. 데이터별 최고점을 모은 모델이 아니다.",
+        13,
+        C["ink"],
+    )
+    foot(s, p(), TOTAL)
+
+    # Component ΔR²
+    s = blank(prs)
+    head(s, "Ablation — 구성요소", "켠 모델 − matched 제거 arm  ·  ΔR²")
+    pic(s, "ablation_delta.png", 36, 88, 760, 400)
+    add_table(
+        s,
+        810,
+        88,
+        430,
+        400,
+        ["기능", "대표", "ΔR²"],
+        [
+            ["Residual", "Sun", "+0.658"],
+            ["Residual", "MICH", "+3.811"],
+            ["Frozen affine", "MICH", "+0.149"],
+            ["Fixed bound", "Sun", "+0.221"],
+            ["Fixed bound", "MICH", "−0.291"],
+            ["Dual-scale", "MICH", "+0.283"],
+            ["Rate hist.", "RWTH", "+1.256"],
+            ["Transport", "MATRb2", "+0.187"],
         ],
         font_size=11,
-        highlight_last=True,
     )
-    add_text(s, 760, 460, 470, 40, "최저(MICH)를 살린 tradeoff", 12, C["muted"])
+    add_text(s, 36, 520, 760, 70, "결론  residual은 세 배터리에서 모두 이득이다. 고정 bound와 full history는 MICH에서 마이너스다. 그래서 모듈을 쌓지 않고, 근거 있는 executor만 켠다.", 12, C["ink"])
     foot(s, p(), TOTAL)
 
-    # 7 Ablation
+    # 6-arm + history
     s = blank(prs)
-    head(s, "Ablation", "(a) Fixed→SAAR  ·  (b) mean–min tradeoff")
-    pic(s, "ablation_panel.png", 50, 95, 1180, 520)
+    head(s, "Ablation — 대조군 · history", "(a) matched 6-arm  ·  (b) causal history")
+    pic(s, "ablation_arms.png", 20, 88, 630, 400)
+    pic(s, "ablation_history.png", 650, 88, 600, 380)
+    add_text(s, 48, 500, 1180, 80, "(a) 결론  Affine만, 또는 그냥 NN만으로는 부족하다. 동결 affine 위에 제한 residual을 올린 조합이 세 셋에서 가장 안정하다.\n(b) 결론  속도 이력은 Sun·RWTH에 필요하고, MICH에서는 단순한 margin history가 더 높다(0.715 vs 0.468). 이력을 전역 기본값으로 두지 않는다.", 13, C["ink"])
     foot(s, p(), TOTAL)
 
-    # 8 Competitors
+    # MATR 2x2 + gate
     s = blank(prs)
-    head(s, "비교", "(a) heatmap  ·  (b) SAAR vs TabPFN vs others")
-    pic(s, "competitor_bars.png", 40, 82, 1180, 360)
-    add_table(
+    head(s, "Ablation — transport · gate", "optional executor는 항상 켜지 않는다")
+    pic(s, "ablation_matr.png", 40, 100, 500, 420)
+    pic(s, "stats_gate.png", 560, 100, 680, 400)
+    add_text(
         s,
         40,
-        455,
+        518,
         1200,
-        200,
-        ["Dataset", "SAAR", "V-REx", "G-DRO", "Mono", "LinRBF", "Engr.", "GP", "TabPFN"],
-        [
-            ["HUST", "0.958", "0.809", "0.934", "0.822", "0.710", "0.878", "-0.32", "0.218"],
-            ["Virkler", "0.888", "0.583", "0.554", "0.565", "0.805", "0.552", "0.54", "0.621"],
-            ["NASA", "0.584", "0.285", "0.286", "0.283", "0.550", "0.549", "0.44", "-0.69"],
-            ["Sunwoda", "0.865", "-0.24", "-0.30", "-0.05", "0.838", "0.619", "-1.60", "-0.89"],
-            ["RWTH", "0.743", "0.645", "0.602", "-0.01", "0.385", "0.526", "-0.47", "-2.18"],
-            ["MATR19", "0.466", "0.044", "0.272", "0.018", "-2.64", "-0.73", "-2.46", "0.202"],
-            ["MATRb2", "0.862", "0.850", "0.777", "0.674", "-0.78", "0.739", "0.21", "0.618"],
-            ["NCMAPSS", "0.937", "0.883", "0.880", "0.892", "0.819", "0.932", "0.80", "0.934"],
-        ],
-        font_size=9,
+        80,
+        "(a) 결론  MATRb2에서 transport가 주효과(+0.187)다. decay만으로는 +0.002다. 둘을 같이 켜야 0.862다.\n(b) 결론  gate는 성능을 만드는 장치가 아니라 거절 장치다. 13곳 중 3곳만 개선, 10곳은 유지, 악화 0. seed는 5/5일 때만 승인한다.",
+        12,
+        C["ink"],
     )
     foot(s, p(), TOTAL)
 
-    # 9 Robustness
+    # Ablation synthesis
     s = blank(prs)
-    head(s, "안정성", "(a) bootstrap CI  ·  (b) MICH unit R²")
-    pic(s, "robustness_panel.png", 50, 100, 1180, 500)
+    head(s, "Ablation 종합", "모듈을 쌓지 않는다.  검증에서 이득이 있는 executor만 켠다.")
+    add_text(s, 48, 86, 1184, 28, "앞 네 장의 숫자를 한 규칙으로 읽는다. 최종 PP-X는 공통 core + 데이터마다 고른 executor다.", 14, C["ink"])
+
+    rect(s, 48, 124, 380, 360, C["soft_blue"], C["blue"], True)
+    rect(s, 48, 124, 8, 360, C["blue"])
+    add_text(s, 68, 136, 340, 28, "항상 켠다", 18, C["blue"], True)
+    add_text(s, 68, 172, 340, 22, "core", 12, C["muted"])
+    add_text(
+        s,
+        68,
+        202,
+        340,
+        260,
+        "동결 affine prior\n+ 제한 residual\n\nAffine만, 또는 NN만으로는\n세 배터리에서 무너진다.\n\nResidual ΔR²\nSun +0.66  ·  MICH +3.81",
+        14,
+        C["ink"],
+    )
+
+    rect(s, 450, 124, 380, 360, C["soft_orange"], C["orange"], True)
+    rect(s, 450, 124, 8, 360, C["orange"])
+    add_text(s, 470, 136, 340, 28, "근거 있을 때만", 18, C["orange"], True)
+    add_text(s, 470, 172, 340, 22, "executor  ·  val-only", 12, C["muted"])
+    add_text(
+        s,
+        470,
+        202,
+        340,
+        260,
+        "고정 bound  Sun · RWTH\ndual-scale  MICH만 (+0.28)\n속도 이력  Sun · RWTH\ntransport  HUST · MATRb2\n\ngate  13곳 중 3곳만 승인\n악화 0",
+        14,
+        C["ink"],
+    )
+
+    rect(s, 852, 124, 380, 360, C["soft"], C["ink"], True)
+    rect(s, 852, 124, 8, 360, C["ink"])
+    add_text(s, 872, 136, 340, 28, "켜면 나빠진다", 18, C["ink"], True)
+    add_text(s, 872, 172, 340, 22, "전역 기본값으로 두지 않음", 12, C["muted"])
+    add_text(
+        s,
+        872,
+        202,
+        340,
+        260,
+        "고정 bound → MICH −0.29\nfull rate history → MICH −0.25\ndual-scale → Sun −0.005,\nRWTH −0.036\n\n평균을 조금 깎고\n최저점을 살리는 선택은\n데이터별 최고점 모음이 아니다.",
+        14,
+        C["ink"],
+    )
+
+    end = rect(s, 48, 504, 1184, 72, C["ink"], None, True)
+    fill_shape_text(end, "읽는 법    core는 고정한다.   executor는 검증 증거가 있을 때만 켠다.   실패하면 safety로 되돌린다.", 15, C["white"], True)
+    add_text(s, 48, 586, 1184, 24, "그래서 주표의 executor가 데이터마다 다르다.  한꺼번에 켠 공동 모델이 아니다.", 13, C["muted"])
+    foot(s, p(), TOTAL)
+
+    # Competitors — after internal ablation, before formal tests
+    s = blank(prs)
+    head(s, "비교", "(a) heatmap  ·  (b) PP-X vs TabPFN vs others")
+    pic(s, "competitor_bars.png", 16, 72, 1248, 528)
+    add_text(s, 40, 608, 1200, 40, "1 PP-X 0.81 · 2 GroupDRO 0.36 · 3 V-REx 0.35.  순위=9곳 평균 R².  강건=9곳에서 양수(9/9, 7/9, 7/9).  MICH TabPFN=동일 202행, v3 CPU, ensemble −1.86.", 13, C["ink"])
+    foot(s, p(), TOTAL)
+
+    # Stats then robustness — one evidence block
+    s = blank(prs)
+    head(s, "통계", "무엇을 검정했는가  ·  파랑 = p<0.05  ·  주황 = 유의 못 함")
+    pic(s, "stats_wilcoxon.png", 16, 82, 568, 340)
+    add_table(
+        s,
+        590,
+        82,
+        650,
+        340,
+        ["①", "검정", "질문", "결과"],
+        [
+            ["W", "Wilcoxon", "Sun·RWTH·MICH 25 unit RMSE", "Direct 17/25 p=.003"],
+            ["W", "Wilcoxon", "soft / affine 대비", "24/25 · 25/25"],
+            ["W", "Wilcoxon", "trainable / unbounded", "p=.071 · .578  못 함"],
+            ["U", "Unit wins", "아홉 셋 물리 유닛 77개", "60/77 이김"],
+            ["D", "Sign test", "아홉 셋 모두 우세인가", "9/9  양측 p=.0039"],
+            ["B", "Bound audit", "residual이 이론 bound를 넘나", "0 / 17,645"],
+        ],
+        font_size=10,
+    )
+    rect(s, 28, 432, 300, 200, C["soft_blue"], C["blue"], True)
+    add_text(s, 40, 440, 276, 20, "W  Wilcoxon", 12, C["blue"], True)
+    add_text(s, 40, 464, 276, 155, "쌍을 이룬 unit RMSE.\nH0: 중앙 차이 = 0.\n파랑만 ‘이겼다’고 말함.\n주황은 이긴 칸이 있어도 유의 아님.", 11, C["ink"])
+    rect(s, 340, 432, 300, 200, C["soft"], C["ink"], True)
+    add_text(s, 352, 440, 276, 20, "S  Seed binomial", 12, C["ink"], True)
+    add_text(s, 352, 464, 276, 155, "5 seed가 affine을 골랐는가.\nH0: 확률 ≤ 0.5.\n5/5만 α=0.05 통과.\n물리 반복이 아님.", 11, C["ink"])
+    rect(s, 652, 432, 300, 200, C["soft_orange"], C["orange"], True)
+    add_text(s, 664, 440, 276, 20, "D  Domain sign", 12, C["blue"], True)
+    add_text(s, 664, 464, 276, 155, "1D 엄격한 외삽 9곳.\n9/9 양측 exact p=.0039.\n계층 bootstrap 95% CI\nlog-RMSE [0.16, 0.65].", 11, C["ink"])
+    rect(s, 964, 432, 276, 200, C["soft"], C["ink"], True)
+    add_text(s, 976, 440, 252, 20, "B  Bound audit", 12, C["ink"], True)
+    add_text(s, 976, 464, 252, 155, "가설검정이 아니라 제약 감사.\n|ŷ−affine| ≤ margin·B\n17,645점 위반 0.", 11, C["ink"])
+    foot(s, p(), TOTAL)
+
+    s = blank(prs)
+    head(s, "안정성", "유닛 단위에서 개선이 한쪽으로 몰리지 않았는지 확인한다")
+    pic(s, "robustness_panel.png", 40, 80, 1200, 380)
+    add_text(
+        s,
+        48,
+        468,
+        580,
+        120,
+        "(a) 결론  아홉 셋 유닛 log-RMSE 비는 평균 0.39, 계층 bootstrap 95% CI [0.16, 0.65]. 선우다·배치2·엔진·아헨은 구간이 0을 넘는다. 화중·균열·NASA·2019는 유닛이 적어 구간이 0을 포함한다.",
+        13,
+        C["ink"],
+    )
+    add_text(
+        s,
+        660,
+        468,
+        572,
+        120,
+        "(b) 결론  MICH 시험 8유닛의 개별 R²가 모두 양수다(0.50–0.96). 합친 점수 0.751은 한 유닛에 몰린 값이 아니므로 대표값으로 읽어도 된다. 이 그림은 검정이 아니라 분포 확인이다.",
+        13,
+        C["ink"],
+    )
+    add_text(s, 48, 598, 1184, 28, "정리  유닛 안에서는 근거가 있다. 데이터 종류가 세 개뿐이라 분야 전체 유의는 말하지 않는다.", 13, C["muted"])
     foot(s, p(), TOTAL)
 
     # 10 Failures — tables only
     s = blank(prs)
-    head(s, "실패 · 경계", "표로 남긴 한계")
+    head(s, "실패 · 경계", "오늘 표는 1D 엄격한 외삽만.  같은 100%라도 geometry는 다르다.")
     add_table(
         s,
         48,
         110,
         1184,
         230,
-        ["Setting", "Base PP R²", "Interpretation", "Action"],
+        ["셋", "R²", "경계", "읽는 법"],
         [
-            ["MICH (base)", "-1.522", "관계 이동 · 보정 꺼짐", "경계+dual-scale → 0.751"],
-            ["XJTU", "-1.229", "val/test 이동 반대", "거절 / 옮기지 않음"],
-            ["FEMTO", "-1.378", "끝점 희소 · 채널 이슈", "설계 미성숙 · 보류"],
-            ["NASA milling", "-4.826", "메커니즘 전이 · unit 극소", "사전 Fail / ABSTAIN"],
+            ["MICH (base)", "-1.522", "관계 이동 · 보정 꺼짐", "dual-scale 켠 뒤 0.751"],
+            ["MATR2019", "0.466", "1D 건강 tail은 맞음", "주표에 남기되 약점"],
+            ["N-CMAPSS", "0.937", "1D 100% · PCA2 0%", "조건 외삽. 먼 RUL tail 아님"],
+            ["MATRb2", "0.862", "1D 100% · PCA2 0% · PCA3 99.2%", "다차원 geometry를 같이 적음"],
         ],
         font_size=12,
         red_cols={1},
@@ -347,9 +851,9 @@ def build():
         220,
         ["Claim", "Detail"],
         [
-            ["Main scores", "0.934 / 0.842 / 0.751"],
-            ["Scope", "연속 열화 · unit-disjoint · hull-out"],
-            ["Method", "frozen affine + dual-scale residual"],
+            ["Model", "현재 v1.1 safety · 표 수치는 기존 v1.0 portfolio"],
+            ["Scope", "unit-disjoint · hull-out · val-only"],
+            ["Not default", "dual-scale · transport · full history"],
             ["Venue", "분야 Q1–Q2"],
         ],
         font_size=12,
@@ -363,35 +867,260 @@ def build():
         ["Not claimed", "Detail"],
         [
             ["Zn / Na", "사후 개발 — untouched 확증 아님"],
-            ["Cross-domain", "XJTU · FEMTO 우월성 전"],
-            ["PAE", "식 라우팅 실험 없음"],
+            ["도메인 transfer", "오늘 외삽 정의에 넣지 않음"],
+            ["PAE 주표", "오늘 점수와 섞지 않음"],
             ["Universal SOTA", "모든 OOD 1등 아님"],
         ],
         font_size=12,
     )
     foot(s, p(), TOTAL)
 
-    # 11 Dual path — PPT table (no photo boxes) + takeaway
+    # Locked cohorts already scored — no new download
     s = blank(prs)
-    head(s, "경로와 한 줄", "같은 외삽, 다른 입력")
+    head(s, "끝난 고호트 — PP-X", "잘된 셋만 PP-X.  MATR 두 곳은 기존 PP-X artifact  ·  Misata는 방금 같은 split으로 재실행")
     add_table(
         s,
         48,
-        110,
+        92,
         1184,
-        280,
-        ["", "SAAR (equation-free)", "PAE (equation-aware)"],
+        360,
+        ["고호트", "PP-X 경로", "PP-X R²", "판정"],
         [
-            ["입력", "명시적 도메인 식 없음", "후보식 검증 후 사용"],
-            ["구조", "동결 affine + dual-scale residual", "식 + 제한 NN"],
-            ["실패 시", "거절 / identity", "끔 → SAAR fallback"],
-            ["단계", "이번 발표 · 논문 1 주결과", "다음 논문 · 이번 표와 분리"],
+            ["MATR 2019-01-24", "validation-calibrated latent", "0.466", "양수. 봉인 latent 0.257에서 개선. 주표와 동일"],
+            ["MATR batch2", "regime transport", "0.862", "양수. 봉인 0.471/0.523에서 개선. 주표와 동일"],
+            ["Misata", "core · val이 unbounded 선택", "0.829", "양수. MLP 0.854. 우월 확증은 여전히 실패"],
+        ],
+        font_size=13,
+        red_cols={2},
+    )
+    add_text(
+        s,
+        48,
+        470,
+        1184,
+        90,
+        "Misata 새 실행  seed 42–46 ensemble 0.829 (개별 0.816–0.829). executor는 validation에서 bounded가 2%를 못 넘겨 unbounded. 기존 locked MLP와 같은 1298행.\nOxford·MATWI·팬·XJTU는 실패 고호트라 PP-X로 다시 돌리지 않았다.",
+        13,
+        C["ink"],
+    )
+    foot(s, p(), TOTAL)
+
+    # Close — forward only, not a repeat of slide 2
+    s = blank(prs)
+    head(s, "다음", "지도는 루트 장에 있다.  여기서는 앞으로만 말한다.")
+
+    rect(s, 48, 110, 380, 360, C["soft_blue"], C["blue"], True)
+    rect(s, 48, 110, 8, 360, C["blue"])
+    now = rect(s, 286, 126, 118, 24, C["blue"], None, True)
+    fill_shape_text(now, "지금", 11, C["white"], True)
+    add_text(s, 72, 126, 200, 32, "PP-X", 22, C["blue"], True)
+    add_text(s, 72, 170, 330, 22, "식 없는 경로", 13, C["muted"])
+    add_text(s, 72, 210, 330, 80, "core + selected executor\nSun .939  RWTH .878\nMICH .751 (dual-scale)", 14, C["ink"])
+    add_text(s, 72, 320, 330, 60, "v1.0 core\n+ v1.1 safety", 14, C["ink"])
+    add_text(s, 72, 400, 330, 40, "만능 SOTA 아님", 13, C["blue"], True)
+
+    rect(s, 450, 110, 380, 360, C["soft_orange"], C["orange"], True)
+    rect(s, 450, 110, 8, 360, C["orange"])
+    nxt = rect(s, 688, 126, 118, 24, C["orange"], None, True)
+    fill_shape_text(nxt, "다음", 11, C["white"], True)
+    add_text(s, 474, 126, 200, 32, "PAE", 22, C["orange"], True)
+    add_text(s, 474, 170, 330, 22, "식 있는 경로", 13, C["muted"])
+    add_text(s, 474, 210, 330, 90, "LLM·온톨로지·source gate\n허용된 식만 실행\n이득 없으면 PP-X", 14, C["ink"])
+    add_text(s, 474, 400, 330, 40, "다음 논문", 13, C["orange"], True)
+
+    rect(s, 852, 110, 380, 360, C["soft"], C["ink"], True)
+    rect(s, 852, 110, 8, 360, C["ink"])
+    later = rect(s, 1090, 126, 118, 24, C["ink"], None, True)
+    fill_shape_text(later, "박사", 11, C["white"], True)
+    add_text(s, 876, 126, 220, 32, "Assurance", 20, C["ink"], True)
+    add_text(s, 876, 170, 330, 22, "두 경로 통합", 13, C["muted"])
+    add_text(s, 876, 210, 330, 80, "믿기 / 보류 / 거절\n허가증으로 운행\nFail이면 옮기지 않음", 14, C["ink"])
+    add_text(s, 876, 400, 330, 40, "이후", 13, C["ink"], True)
+
+    add_text(
+        s,
+        48,
+        500,
+        1184,
+        70,
+        "밖을 지탱하는 것은 가정이다.  식이 없으면 PP-X.  executor는 근거 있을 때만 켠다.",
+        15,
+        C["ink"],
+        True,
+        "center",
+    )
+    foot(s, p(), TOTAL)
+
+    # PAE concept + gates
+    s = blank(prs)
+    head(s, "후속 — PAE 컨셉", "출처가 고정된 식을 컴파일하고, 적용 가능한지 검증한 뒤에만 실행한다.")
+    add_text(s, 48, 84, 1184, 22, "PAE는 식 생성기가 아니다. 문헌 식 카드가 의미적으로 실행 가능하고, 검증에서 전이될 때만 켠다.", 13, C["ink"])
+
+    inn = rect(s, 48, 116, 360, 56, C["soft"], C["ink"], True)
+    fill_shape_text(inn, "문제 서술  +  데이터 스키마", 13, C["ink"], True)
+    right_arrow(s, 420, 132, 28, 22, C["muted"])
+    rag = rect(s, 460, 116, 360, 56, C["soft"], C["ink"], True)
+    fill_shape_text(rag, "RAG   문헌 식 카드 · 인용만 검색", 13, C["ink"], True)
+    add_text(s, 840, 124, 392, 40, "실행 권한 없음. 후보만 줄인다.", 12, C["muted"])
+
+    down_arrow(s, 624, 178, 28, 14, C["muted"])
+
+    g1 = rect(s, 48, 198, 360, 118, C["soft_blue"], C["blue"], True)
+    rect(s, 48, 198, 8, 118, C["blue"])
+    add_text(s, 68, 206, 320, 22, "LLM 게이트", 15, C["blue"], True)
+    add_text(s, 68, 232, 320, 72, "카드 ID와 역할 결합만 제안.\n식·상수·인용·고장경계를\n만들지 못한다.", 12, C["ink"])
+    right_arrow(s, 420, 240, 28, 22, C["muted"])
+
+    g2 = rect(s, 460, 198, 360, 118, C["soft_orange"], C["orange"], True)
+    rect(s, 460, 198, 8, 118, C["orange"])
+    add_text(s, 480, 206, 320, 22, "온톨로지 · 식 판별", 15, C["orange"], True)
+    add_text(s, 480, 232, 320, 72, "target · 메커니즘 · 역할 · 단위\n경계 · 출처 · learnable slot.\n하나라도 깨지면 실행 불가.", 12, C["ink"])
+    right_arrow(s, 832, 240, 28, 22, C["muted"])
+
+    g3 = rect(s, 872, 198, 360, 118, C["soft"], C["ink"], True)
+    rect(s, 872, 198, 8, 118, C["ink"])
+    add_text(s, 892, 206, 320, 22, "Source 게이트", 15, C["ink"], True)
+    add_text(s, 892, 232, 320, 72, "검증 holdout에서 식 경로가\nPP-X보다 나을 때만 통과.\n안전 증명이 아니다.", 12, C["ink"])
+
+    down_arrow(s, 624, 322, 28, 14, C["muted"])
+    dec = rect(s, 310, 340, 660, 40, C["ink"], None, True)
+    fill_shape_text(dec, "식이 컴파일되고, 검증에서 이기는가?", 15, C["white"], True)
+
+    vline(s, 420, 380, 396, C["rule"])
+    vline(s, 640, 380, 396, C["rule"])
+    vline(s, 860, 380, 396, C["rule"])
+    hline(s, 420, 860, 396, C["rule"])
+    down_arrow(s, 404, 396, 28, 14, C["orange"])
+    down_arrow(s, 624, 396, 28, 14, C["blue"])
+    down_arrow(s, 844, 396, 28, 14, C["muted"])
+    add_text(s, 300, 394, 90, 16, "YES", 11, C["orange"], True, "right")
+    add_text(s, 880, 394, 90, 16, "NO", 11, C["blue"], True, "left")
+
+    o1 = rect(s, 48, 418, 360, 100, C["soft_orange"], C["orange"], True)
+    add_text(s, 64, 426, 328, 22, "PAE 실행", 14, C["orange"], True)
+    add_text(s, 64, 452, 328, 56, "허용 계수만 학습.\n현재 상태 → 경계 적분. RUL=0.", 12, C["ink"])
+    o2 = rect(s, 460, 418, 360, 100, C["soft_blue"], C["blue"], True)
+    add_text(s, 476, 426, 328, 22, "PP-X로 되돌림", 14, C["blue"], True)
+    add_text(s, 476, 452, 328, 56, "식 계약이 안 닫히거나\n검증에서 이득이 없을 때.", 12, C["ink"])
+    o3 = rect(s, 872, 418, 360, 100, C["soft"], C["ink"], True)
+    add_text(s, 888, 426, 328, 22, "거절", 14, C["ink"], True)
+    add_text(s, 888, 452, 328, 56, "식도 없고 PP-X도 불안정하면\n예측하지 않는다.", 12, C["ink"])
+
+    add_text(s, 48, 532, 1184, 28, "검사 항목   상태 · 고장 메커니즘 · 필수 변수 · 단위 · 경계 · 출처.   데이터셋 이름으로 경로를 고르지 않는다.", 12, C["ink"])
+    add_text(s, 48, 564, 1184, 24, "자유 LLM 식 생성은 성공이 아니라 계약 위반이다. 다음 논문 경로이며 오늘 주표와 숫자를 섞지 않는다.", 12, C["muted"])
+    foot(s, p(), TOTAL)
+
+    # PAE feasibility
+    s = blank(prs)
+    head(s, "후속 — PAE 피저빌리티", "게이트가 왜 필요한지, 식이 맞을 때와 경계만 있을 때를 갈라 본다.")
+    add_table(
+        s,
+        48,
+        96,
+        1184,
+        240,
+        ["자료", "넣은 식", "게이트 읽기", "PAE", "PP-X"],
+        [
+            ["알루미늄 균열", "Paris + 49.8 mm 파단", "식·경계·역할이 닫힘 → 실행", "0.969", "0.888"],
+            ["미시간 배터리", "80% EOL 경계만", "메커니즘 식 없음 → 되돌려야 함", "0.635", "0.826"],
+            ["NASA 실험셀", "용량 속도 quotient", "셀마다 regime이 달라 계약 약함", "0.492", "0.741"],
         ],
         font_size=13,
     )
-    add_text(s, 48, 440, 1180, 28, "1  밖을 지탱하는 것은 가정이지만, 식만 넣으면 답이 아니다.", 15, C["ink"])
-    add_text(s, 48, 490, 1180, 28, "2  식이 없으면 SAAR.  주표 0.934 / 0.842 / 0.751.", 15, C["ink"])
-    add_text(s, 48, 540, 1180, 28, "3  실패·Zn·PAE는 한계/후속. 만능 SOTA를 주장하지 않는다.", 15, C["ink"])
+    add_table(
+        s,
+        48,
+        360,
+        1184,
+        180,
+        ["이미 본 것", "아직 아닌 것"],
+        [
+            ["식이 맞으면 PAE가 PP-X를 이김 (Virkler +0.081)", "RAG·LLM·온톨로지를 주표에 넣지 않음"],
+            ["경계만 알면 PAE를 켜면 진다 (MICH · NASA)", "source gate의 광범위 일반화"],
+            ["동일-split, 오늘 포트폴리오와 분리", "LLM이 물리법칙을 발견한다는 주장"],
+        ],
+        font_size=13,
+    )
+    add_text(s, 48, 556, 1184, 36, "결론  식이 맞으면 PAE, 경계만 있으면 PP-X. 미시간 0.826은 raw-cycle 맞비교(주표 MICH 0.751).", 13, C["ink"])
+    add_text(s, 48, 592, 1184, 24, "게이트는 성능을 올리는 부품이 아니라, 틀린 식을 실행하지 못하게 막는 장치다.", 12, C["muted"])
+    foot(s, p(), TOTAL)
+
+    # Close
+    s = blank(prs)
+    for sh in list(s.shapes):
+        sh._element.getparent().remove(sh._element)
+    bg = s.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.RECTANGLE, 0, 0, W, H)
+    bg.fill.solid()
+    bg.fill.fore_color.rgb = C["white"]
+    bg.line.fill.background()
+    frame = s.shapes.add_shape(MSO_AUTO_SHAPE_TYPE.RECTANGLE, px(40), px(32), px(1200), px(656))
+    frame.fill.background()
+    frame.line.color.rgb = RGBColor(0x22, 0x22, 0x22)
+    frame.line.width = Pt(1.25)
+    add_text(s, 100, 200, 1080, 48, "감사합니다", 34, C["ink"], True, "center")
+    add_text(s, 100, 270, 1080, 36, "Q & A", 22, C["blue"], True, "center")
+    add_text(
+        s,
+        140,
+        360,
+        1000,
+        80,
+        "오늘: PP-X v1.1  ·  prior-residual candidate + validation safety gate + exact MLP fallback\n다음: LLM·온톨로지·source gate로 식을 판별하고, 이득 없으면 PP-X",
+        15,
+        C["ink"],
+        False,
+        "center",
+    )
+    add_text(s, 100, 500, 1080, 28, "질문 받겠습니다.", 16, C["muted"], False, "center")
+    add_text(s, 100, 560, 1080, 22, "SPS Lab  ·  박사과정 박진서", 13, C["muted"], False, "center")
+    p()
+
+    # Appendix — backup after Q&A
+    s = blank(prs)
+    head(s, "보조 — 이게 무슨 데이터인가", "백업. 본 발표는 Q&A에서 끝낸다.")
+    add_table(
+        s,
+        28,
+        88,
+        1224,
+        540,
+        ["표기", "물건", "한 줄"],
+        [
+            ["HUST", "화중과대 리튬 배터리", "충전 방법(프로토콜)이 다른 셀. 중국 랩."],
+            ["Sunwoda", "선우다 상용 리튬셀", "공장 셀. 학습에 안 넣은 다른 셀로 시험."],
+            ["RWTH", "아헨공대 리튬 배터리", "독일 랩 셀. 역시 처음 보는 셀로 시험."],
+            ["MICH", "미시간대 리튬 배터리", "건강↔수명 관계가 학습 때와 달라진 셀."],
+            ["MATR19", "MIT 2019 수명 벤치", "노트북/그리드용 셀. 고전 벤치마크."],
+            ["MATRb2", "MIT 배치 2", "같은 랩, 다른 생산 로트. 시험 9셀."],
+            ["NASA", "NASA PCoE 실험용 18650", "우주선/로켓이 아님. 용량 70%까지 남은 횟수."],
+            ["Virkler", "알루미늄 피로균열", "판에 금이 얼마나 남았나. 배터리 아님."],
+            ["N-CMAPSS", "항공기 엔진 시뮬", "NASA가 만든 디지털 터보팬. 실제 비행 기록 아님."],
+        ],
+        font_size=12,
+    )
+    add_text(s, 28, 638, 1224, 24, "NASA가 두 개다.  위는 배터리 셀, 아래 엔진은 시뮬레이터.", 12, C["muted"])
+    foot(s, p(), TOTAL)
+
+    s = blank(prs)
+    head(s, "보조 — 누구로 나누고, 뭘 보고, 뭘 맞추나", "미지 = 학습 때 이름조차 안 본 셀/시편/엔진")
+    add_table(
+        s,
+        20,
+        86,
+        1240,
+        520,
+        ["셋", "학습", "검증 / 시험", "보고 (X)", "맞추는 것 (Y)"],
+        [
+            ["화중 배터리", "충전법 1–6, 아직 건강한 구간", "충전법 7–8 / 9–10, 용량이 더 떨어진 구간", "지금까지의 용량·떨어지는 속도", "수명까지 남은 사이클"],
+            ["선우다 · 아헨 · 미시간", "다른 셀의 건강한 구간", "처음 보는 셀의 말기 구간", "지금 건강, 최근 속도, 고장까지 여유", "수명까지 남은 사이클"],
+            ["MIT 2019 / 배치2", "일부 셀의 건강한 구간 (배치2는 30셀)", "나머지 셀의 말기 (배치2는 9+9셀)", "지금까지의 용량 이력", "수명까지 남은 사이클"],
+            ["NASA 실험셀", "일부 셀, 용량이 아직 높은 구간", "다른 셀, 용량이 학습 최저보다 낮은 구간", "용량, 속도, 몇 번째 사이클인가", "용량 70% 될 때까지 남은 횟수"],
+            ["알루미늄 균열", "다른 시편의 짧은 금", "처음 보는 시편의 긴 금", "금 길이, 자라는 속도, 하중", "쪼개질 때까지 남은 반복"],
+            ["항공기 엔진", "본 적 있는 비행조건의 엔진", "처음 보는 비행조건의 엔진", "센서(조건으로 나눈 값), 운전모드", "엔진이 버틸 남은 시간"],
+        ],
+        font_size=11,
+    )
+    add_text(s, 20, 618, 1240, 28, "같은 셀을 시간만 잘라 뒤를 맞추지 않는다.  시험 셀의 미래·최종 수명은 X에 넣지 않는다.", 12, C["muted"])
     foot(s, p(), TOTAL)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
