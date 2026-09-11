@@ -159,8 +159,76 @@ def build():
     story.append(Paragraph("그림 1. 연구 루트 — 현재 paper main은 PP-X, PAE는 future program", S["Caption"]))
     story.append(PageBreak())
 
+    # ── Modeling intent / contributions / positioning ──
+    story.append(Paragraph("2. 모델링 의도와 research gap", S["H1"]))
+    story.append(Paragraph(
+        "<b>PP-X treats extrapolation as test-independent approval/rejection of structural assumptions.</b> "
+        "즉, test sample별로 모델을 고르는 문제가 아니라 배포 전에 구조 가정의 사용 권한을 승인하거나 거절하는 문제다.",
+        S["Body"],
+    ))
+    story.extend(bullets([
+        "<b>Declare</b> typed contract: state, strict tail, units, prior, fallback을 선언",
+        "<b>Learn</b> source-supported residual around a frozen prior",
+        "<b>Approve</b> or decline with physical-unit evidence",
+        "<b>Decline</b> 시 exact frozen fallback 또는 abstention",
+    ], S["BulletKo"]))
+    story.append(Paragraph("Research gap", S["H2"]))
+    story.append(Paragraph(
+        "개별 affine+NN, hard boundary, gate의 최초성이 아니라 "
+        "<b>typed admissibility + prior-centered residual authority + predeployment unit-risk approval/fallback</b>의 결합이 novelty다.",
+        S["Body"],
+    ))
+    story.append(PageBreak())
+
+    story.append(Paragraph("3. 본 연구의 기여와 evidence mapping", S["H1"]))
+    story.append(data_table(
+        ["기여", "핵심 증거", "반례 / 한계"],
+        [
+            ["Typed contract + conditional execution", "common backbone 6/12; RMSE-only 7/12 (FA 4); unit-risk 8/12 (FA 2, FR 2)", "RWTH dual-scale 악화; MICH fixed-bound 악화"],
+            ["Prior-preserving residual", "25 units: direct 17/25 p=.0028; soft 24/25; affine 25/25; bound 0/17,645", "frozen/trainable p=.071; bounded/unbounded p=.578 미확증"],
+            ["Approval / fallback", "Sun +.221; MICH +.283; HUST +.128; MATRb2 +.187; DS03 route PASS", "DS03 .8818 < Engression .9013"],
+        ],
+        col_widths=[45 * mm, 70 * mm, 43 * mm],
+    ))
+    story.append(Spacer(1, 5 * mm))
+    story.append(Paragraph("Novelty positioning", S["H2"]))
+    story.append(data_table(
+        ["계열", "PP-X와의 차이"],
+        [
+            ["PINN", "완전식이 필수 아님; typed partial prior를 승인·거절"],
+            ["prior-residual hybrid", "frozen prior 중심 residual authority + unit-risk approval"],
+            ["MoE", "sample-wise test routing 없음; predeployment executor/fallback 동결"],
+            ["Engression", "generic distribution보다 approved structural tail 보존"],
+            ["V-REx", "source-domain risk invariance가 아니라 state-level strict-tail + prior authority"],
+        ],
+        col_widths=[45 * mm, 110 * mm],
+    ))
+    story.append(Paragraph(
+        "최초 hybrid/PINN, literature 또는 universal SOTA, safety guarantee는 주장하지 않는다.",
+        S["Small"],
+    ))
+    story.append(PageBreak())
+
+    story.append(Paragraph("4. Claim–evidence–limitation과 투고 전략", S["H1"]))
+    story.append(data_table(
+        ["Tier", "Evidence", "Limitation"],
+        [
+            ["A Mixed strongest same-split retrospective", "9/9; p=.00390625; 77 units; equal-dataset geometric RMSE −33.8%; hierarchical CI 15.8–48.6%", "comparator budget heterogeneous; paired comparator와 pooled strongest 일부 다름"],
+            ["B Uniformly tuned equal-budget retrospective", "9×8 baselines×30 candidates×5 refit; 8/9; p=.0391; Virkler −.002", "30은 방법별 후보예산; 전체 구조개발 횟수 아님; 5 seeds는 독립 표본 아님"],
+            ["C DS03 prospective truth test", "fallback .8818; basic .832; multiscale .869; Engression .9013", "route PASS, predictive superiority FAIL; CRT/GCIE rejected"],
+        ],
+        col_widths=[45 * mm, 65 * mm, 48 * mm],
+    ))
+    story.append(Spacer(1, 5 * mm))
+    story.append(Paragraph(
+        "<b>투고 bottleneck: 독립 prospective predictive superiority 1개 추가 필요.</b> "
+        "그 전에는 retrospective breadth와 route-selection validity만 주장하며 세 tier를 pooled evidence로 합치지 않는다.",
+        S["Body"],
+    ))
+    story.append(PageBreak())
+
     # ── 2 Problem ──
-    story.append(Paragraph("2. 왜 외삽이 어려운가", S["H1"]))
+    story.append(Paragraph("5. 왜 외삽이 어려운가", S["H1"]))
     story.append(Paragraph(
         "학습 support 안에서는 여러 함수가 비슷하게 맞는다. "
         "밖에서는 데이터가 방향을 정해주지 못하고, <b>가정이 예측을 가른다</b>. "
@@ -180,11 +248,12 @@ def build():
     story.append(PageBreak())
 
     # ── 3 Method ──
-    story.append(Paragraph("3. 방법 — PP-X frozen method v1", S["H1"]))
+    story.append(Paragraph("6. 방법 — Algorithm 1: Declare–Learn–Approve–Decline", S["H1"]))
     story.append(Paragraph(
         "<b>PP-X</b>는 prior-residual candidate를 validation evidence로 승인하고, "
         "지원되는 executor만 실행하며, prior가 거절되면 fallback 또는 abstention하는 "
-        "paper-main top-level framework다. SAAR는 historical alias / core architecture다.",
+        "paper-main top-level framework다. test sample별 routing은 없고 test는 frozen forward만 수행한다. "
+        "SAAR는 historical alias / core architecture다.",
         S["Body"],
     ))
     story.append(Paragraph("ŷ = m · softplus( ℓ(z) + cθ(z) )", S["Eq"]))
@@ -293,7 +362,7 @@ def build():
     story.append(PageBreak())
 
     # ── 8 Prospective / final boundary ──
-    story.append(Paragraph("8. 동일예산 prospective와 최종 경계", S["H1"]))
+    story.append(Paragraph("8. 동일예산 retrospective와 DS03 prospective 경계", S["H1"]))
     story.append(Paragraph(
         "사전에 고정한 동일예산 protocol은 <b>9 settings × 8 baselines × 30 candidates × 5 refit</b>이다. "
         "PP-X는 8/9에서 우세했고 양측 sign p=.0391이었다. Virkler는 −0.002로 승리에 포함하지 않는다.",
@@ -302,7 +371,7 @@ def build():
     story.append(data_table(
         ["항목", "PP-X / 개발안", "비교 / 결과", "판정"],
         [
-            ["Prospective", "8/9", "p=.0391 · Virkler −0.002", "동일예산 우세 방향"],
+            ["Equal-budget retrospective", "8/9", "p=.0391 · Virkler −0.002", "동일예산 우세 방향"],
             ["DS03", "frozen fallback .8818", "Engression .9013", "route PASS · superiority FAIL"],
             ["CCMR v2.2", "trajectory-domain", "executor only", "PP-X main 아님"],
             ["CRT", "DS03 .8851", "< Engression .9013", "rejected"],
