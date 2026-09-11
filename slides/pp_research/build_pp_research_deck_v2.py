@@ -201,7 +201,7 @@ def build():
     prs.slide_width = W
     prs.slide_height = H
     n = 0
-    TOTAL = 36
+    TOTAL = 37
 
     def p():
         nonlocal n
@@ -296,6 +296,65 @@ def build():
         "center",
     )
     add_text(s, 42, 646, 1190, 16, "Sources: DOI 10.1093/jrsssb/qkae108 · PMLR 202:7920–7939 · arXiv:2402.09758 · arXiv:2410.23246", 8, C["muted"], False, "center")
+    foot(s, p(), TOTAL)
+
+    # Prior-work map — adapted from the seminar deck, checked against sources.
+    s = blank(prs)
+    head(s, "사전 조사 — 외삽을 위한 방법은 이미 다양하다", "차이는 알고리즘의 복잡도보다, support 밖에서 어떤 구조가 유지된다고 보는지에 있다")
+    prior_families = [
+        (
+            "함수족 · 연산",
+            "EQL · NALU\nactivation alignment",
+            "해석식의 함수족이나 산술 연산이 밖에서도 유지된다고 본다.",
+            "맞으면 멀리까지 연장 가능하지만, 함수족이 틀리면 오차가 크게 늘 수 있다.",
+            C["blue"],
+        ),
+        (
+            "형상 제약",
+            "CMNN\nmonotone · Lipschitz",
+            "증가·감소 방향이나 변화율의 한계를 구조적으로 보장한다.",
+            "방향은 보장해도 외삽 기울기와 곡률까지 자동으로 정해지지는 않는다.",
+            C["blue"],
+        ),
+        (
+            "수식 · 물리",
+            "PINN · Physics-ML\nphysics feature / loss",
+            "지배방정식, 경계조건 또는 물리 특징이 새로운 구간에서도 성립한다고 본다.",
+            "수식이 불완전하거나 적용 조건이 바뀌면 잘못된 제약이 될 수 있다.",
+            C["orange"],
+        ),
+        (
+            "분포 · 불확실성",
+            "Engression · Progression\nGP · UQ · abstention",
+            "잡음구조나 tail dependence를 이용하거나, 불확실할 때 예측 범위를 넓히고 보류한다.",
+            "분포 가정과 calibration 조건이 필요하며, 보류는 예측값 자체를 개선하는 방법은 아니다.",
+            C["orange"],
+        ),
+    ]
+    for i, (family, examples, assumption, limitation, accent) in enumerate(prior_families):
+        x = 34 + i * 306
+        rect(s, x, 106, 284, 416, C["white"], accent, True)
+        add_text(s, x + 18, 126, 248, 26, family, 16, accent, True, "center")
+        rect(s, x + 18, 170, 248, 70, C["soft_blue"] if i < 2 else C["soft_orange"])
+        add_text(s, x + 28, 184, 228, 44, examples, 12, C["ink"], True, "center")
+        add_text(s, x + 20, 270, 244, 22, "전제", 11, accent, True)
+        add_text(s, x + 20, 298, 244, 76, assumption, 11, C["ink"])
+        add_text(s, x + 20, 392, 244, 22, "제한", 11, C["muted"], True)
+        add_text(s, x + 20, 420, 244, 76, limitation, 11, C["muted"])
+    rect(s, 34, 548, 1202, 72, C["soft_blue"], C["blue"], True)
+    add_text(
+        s,
+        58,
+        561,
+        1154,
+        46,
+        "이번 사전 조사에서 확인한 공백  방법은 많지만, 서로 다른 prior 후보를 같은 기준으로 승인·거절하고 미승인 시 실행 경로까지 정하는 절차는 뚜렷하지 않았다.",
+        14,
+        C["blue"],
+        True,
+        "center",
+    )
+    add_text(s, 34, 642, 1202, 18, "Xu et al., ICLR 2021 · Martius & Lampert, ICLR 2017 · Trask et al., NeurIPS 2018 · Runje et al., ICML 2023 · Shen & Meinshausen, JRSS-B 2024", 8, C["muted"], False, "center")
     foot(s, p(), TOTAL)
 
     # Modeling intent / research gap
@@ -1401,6 +1460,7 @@ def build():
         "PP-X: Prior-Transferability Adaptive Extrapolation",
         "문제 · 연구 배경",
         "사전 조사 — 회귀 외삽은 가정에 의존한다",
+        "사전 조사 — 외삽을 위한 방법은 이미 다양하다",
         "연구 루트",
         "PP-X 개요",
         "왜 PP-X가 필요한가",
