@@ -201,7 +201,7 @@ def build():
     prs.slide_width = W
     prs.slide_height = H
     n = 0
-    TOTAL = 35
+    TOTAL = 36
 
     def p():
         nonlocal n
@@ -248,6 +248,54 @@ def build():
     rect(s, 696, 374, 548, 154, C["soft_blue"], C["blue"], True)
     add_text(s, 712, 382, 516, 22, "출발점", 13, C["blue"], True)
     add_text(s, 712, 408, 516, 108, "맞는 답이 하나가 아니다. 밖을 지탱하는 것은 데이터가 아니라 지금 정당화되는 prior다. prior가 많을수록 좋은 것이 아니라, 그 수준과 신뢰성에 맞춰 외삽 전략을 고른다. 다음 장에서 경로를 나눈다.", 12, C["ink"])
+    foot(s, p(), TOTAL)
+
+    # Prior work — the defensible literature gap.
+    s = blank(prs)
+    head(s, "사전 조사 — 회귀 외삽은 가정에 의존한다", "문헌의 공통점은 ‘가정 없는 범용 외삽’이 아니라, 서로 다른 가정 아래의 제한된 보장이다")
+    literature = [
+        (
+            "일반 회귀",
+            "선형모형은 전역 함수형을 그대로 연장한다. 반면 tree 계열은 support 밖에서 상수화되기 쉽고, 제약 없는 NN은 외부 거동이 통제되지 않을 수 있다.",
+            "Shen & Meinshausen, JRSS-B, 2024",
+        ),
+        (
+            "단조 제약",
+            "지정한 입력–출력 관계의 단조성은 보장할 수 있다. 그러나 단조성만으로 외삽 기울기, 곡률, 경계 형태까지 정해지지는 않는다.",
+            "Runje & Shankaranarayana, ICML, 2023",
+        ),
+        (
+            "수식 기반 학습",
+            "PINN은 지배방정식과 경계조건을 학습에 반영한다. 알려진 수식이 부정확하거나 적용 범위가 달라지면 그 제약도 함께 틀릴 수 있으며, 장기 외삽 실패도 보고되어 있다.",
+            "Raissi et al., JCP, 2019; Krishnapriyan et al., NeurIPS, 2021",
+        ),
+        (
+            "최근 외삽 방법",
+            "Engression은 pre-additive noise와 단조성, extrapolation-aware inference는 방향미분 경계, Progression은 tail dependence 가정에 각각 의존한다.",
+            "Pfister & Bühlmann, 2024; Buriticá & Engelke, 2024",
+        ),
+    ]
+    for i, (family, scope, citation) in enumerate(literature):
+        y = 96 + i * 112
+        rect(s, 42, y, 196, 88, C["ink"], None, True)
+        add_text(s, 56, y + 28, 168, 28, family, 15, C["white"], True, "center")
+        rect(s, 252, y, 980, 88, C["soft"] if i % 2 else C["white"], C["rule"], True)
+        add_text(s, 274, y + 12, 932, 48, scope, 12, C["ink"])
+        add_text(s, 274, y + 64, 932, 16, citation, 9, C["muted"])
+    rect(s, 42, 558, 1190, 70, C["soft_blue"], C["blue"], True)
+    add_text(
+        s,
+        64,
+        572,
+        1146,
+        42,
+        "정리  외삽 성능은 어떤 가정이 실제 데이터 생성 구조와 맞는지에 달려 있다. PP-X는 특정 prior를 항상 강제하지 않고, 검증자료가 지지하는 구조만 선택해 사용한다.",
+        14,
+        C["blue"],
+        True,
+        "center",
+    )
+    add_text(s, 42, 646, 1190, 16, "Sources: DOI 10.1093/jrsssb/qkae108 · PMLR 202:7920–7939 · arXiv:2402.09758 · arXiv:2410.23246", 8, C["muted"], False, "center")
     foot(s, p(), TOTAL)
 
     # Modeling intent / research gap
@@ -1352,6 +1400,7 @@ def build():
     desired_main_titles = [
         "PP-X: Prior-Transferability Adaptive Extrapolation",
         "문제 · 연구 배경",
+        "사전 조사 — 회귀 외삽은 가정에 의존한다",
         "연구 루트",
         "PP-X 개요",
         "왜 PP-X가 필요한가",
