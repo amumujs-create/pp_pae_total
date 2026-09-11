@@ -201,7 +201,7 @@ def build():
     prs.slide_width = W
     prs.slide_height = H
     n = 0
-    TOTAL = 34
+    TOTAL = 35
 
     def p():
         nonlocal n
@@ -254,66 +254,95 @@ def build():
     s = blank(prs)
     head(s, "왜 PP-X가 필요한가", "외삽에서는 예측기보다 먼저 구조 가정의 사용 자격을 검증해야 한다")
     add_text(s, 48, 88, 1184, 54, "관측 범위 밖에서는 데이터만으로 답을 정할 수 없다. PP-X는 구조 가정을 사전 선언하고, 검증된 가정만 실행한다.", 18, C["blue"], True, "center")
-    add_table(
-        s, 48, 166, 1184, 292,
-        ["기존 공백", "PP-X의 질문", "설계 결과"],
-        [
-            ["support 밖에서 데이터만으로 tail을 식별할 수 없음", "어떤 구조 가정을 미리 선언할 것인가?", "typed admissibility contract"],
-            ["prior와 NN의 수정 권한이 불명확", "source가 지지하는 범위에서 residual이 어디까지 수정 가능한가?", "frozen prior-centered residual authority"],
-            ["test 성능을 본 뒤 구조를 정당화하기 쉬움", "배포 전에 물리 단위 증거로 승인 가능한가?", "unit-risk approval"],
-            ["가정이 거절돼도 숫자를 내는 관행", "거절 시 정확히 무엇을 실행하는가?", "exact frozen fallback / abstention"],
-        ], font_size=12,
-    )
-    add_text(s, 48, 492, 1184, 76, "핵심 전환: test에서 잘 맞는 모델을 고르는 것이 아니라, test를 보기 전에 구조 가정의 사용 권한을 승인하거나 거절한다.", 15, C["ink"], True, "center")
+    rect(s, 48, 170, 510, 294, C["soft_orange"], C["orange"], True)
+    add_text(s, 72, 188, 462, 28, "기존 외삽의 취약점", 17, C["orange"], True)
+    add_text(s, 78, 238, 440, 190, "① support 밖의 tail은 데이터만으로 식별 불가\n\n② prior와 NN의 수정 권한이 불명확\n\n③ test 결과를 본 뒤 구조를 정당화할 위험\n\n④ 가정이 틀려도 예측값을 강제로 출력", 14, C["ink"])
+    right_arrow(s, 584, 294, 74, 42, C["muted"])
+    rect(s, 682, 170, 550, 294, C["soft_blue"], C["blue"], True)
+    add_text(s, 706, 188, 502, 28, "PP-X의 대응", 17, C["blue"], True)
+    add_text(s, 712, 238, 476, 190, "① typed admissibility contract 선언\n\n② frozen prior 중심의 residual 권한 제한\n\n③ physical-unit validation evidence로 승인\n\n④ 미승인 시 exact fallback / abstention", 14, C["ink"])
+    add_text(s, 48, 500, 1184, 68, "핵심 전환  test에서 잘 맞는 모델을 고르는 것이 아니라, test를 보기 전에 구조 가정의 사용 권한을 승인하거나 거절한다.", 16, C["ink"], True, "center")
     add_text(s, 48, 586, 1184, 30, "PP-X = Declare assumptions → Learn constrained residual → Approve with validation evidence → Decline to fallback", 13, C["muted"], False, "center")
     foot(s, p(), TOTAL)
 
     # Contributions and evidence mapping
     s = blank(prs)
     head(s, "PP-X의 세 가지 기여", "가정을 선언하고 · prior의 권한을 보존하며 · 근거가 없으면 실행하지 않는다")
-    add_table(
-        s, 32, 88, 1216, 460,
-        ["기여", "핵심 증거", "반례 · 한계"],
-        [
-            ["① Typed contract\n+ conditional execution", "common backbone 6/12\nRMSE-only 7/12 · false accept 4\nfrozen unit-risk 8/12 · FA 2 / FR 2", "RWTH dual-scale 악화\nMICH fixed-bound 악화"],
-            ["② Prior-preserving\nresidual authority", "matched 25 units: direct 17/25, p=.0028\nsoft 24/25 · affine-only 25/25\nbound 0 violations / 17,645", "frozen vs trainable p=.071\nbounded vs unbounded p=.578\n→ 미확증"],
-            ["③ Predeployment\napproval / fallback", "Sun bound +.221 · MICH dual-scale +.283\nHUST transport +.128 · MATRb2 +.187\nDS03 route-selection PASS", "DS03 predictive superiority FAIL\nfallback .8818 < Engression .9013"],
-        ], font_size=11,
-    )
-    add_text(s, 48, 572, 1184, 38, "핵심 기여는 새 부품 하나가 아니라, 외삽 가정을 통제하는 선언–학습–승인–거절의 end-to-end 규율이다.", 15, C["blue"], True, "center")
+    cards = [
+        (
+            "01  DECLARE",
+            "Typed contract",
+            "허용할 prior · tail · 단위 · fallback을 배포 전에 선언",
+            "common backbone 6/12\nunit-risk gate 8/12",
+            "반례  RWTH dual-scale · MICH fixed-bound",
+        ),
+        (
+            "02  CONTROL",
+            "Prior-preserving residual",
+            "frozen prior 주변에서 source가 지지하는 만큼만 NN이 수정",
+            "direct 17/25, p=.0028\nbound violation 0 / 17,645",
+            "미확증  trainable p=.071 · unbounded p=.578",
+        ),
+        (
+            "03  DECIDE",
+            "Approval / fallback",
+            "물리 단위 증거가 있을 때만 executor를 승인하고 동결",
+            "Sun +.221 · MICH +.283\nDS03 route PASS",
+            "한계  DS03 .8818 < Engression .9013",
+        ),
+    ]
+    for i, (step, title, body, evidence, limit) in enumerate(cards):
+        x = 32 + i * 408
+        rect(s, x, 106, 384, 420, C["white"], C["blue"] if i < 2 else C["orange"], True)
+        add_text(s, x + 22, 126, 340, 22, step, 12, C["blue"] if i < 2 else C["orange"], True)
+        add_text(s, x + 22, 164, 340, 30, title, 18, C["ink"], True)
+        add_text(s, x + 22, 216, 340, 76, body, 13, C["ink"])
+        rect(s, x + 22, 312, 340, 92, C["soft_blue"])
+        add_text(s, x + 36, 324, 312, 66, evidence, 12, C["blue"], True, "center")
+        add_text(s, x + 22, 432, 340, 64, limit, 11, C["muted"], False, "center")
+    add_text(s, 48, 566, 1184, 46, "연구 기여 = 새 부품 하나가 아니라, 외삽 가정을 통제하는 선언–학습–승인–거절의 end-to-end 규율", 15, C["blue"], True, "center")
     foot(s, p(), TOTAL)
 
     # Novelty positioning
     s = blank(prs)
     head(s, "무엇이 새로운가", "새 prior나 gate 자체가 아니라 네 요소를 하나의 검증 가능한 실행 계약으로 결합했다")
-    add_table(
-        s, 28, 88, 1224, 450,
-        ["계열", "주요 초점", "PP-X와의 차이", "주장하지 않는 것"],
-        [
-            ["PINN", "known equation을 loss/architecture에 반영", "완전식 없이 typed partial prior를 승인·거절 가능", "최초의 physics hybrid"],
-            ["Prior-residual hybrid", "prior + learned correction", "residual 수정 권한을 frozen prior 중심으로 제한하고 unit-risk로 승인", "affine+NN 최초"],
-            ["MoE", "sample-wise expert routing", "test sample별 routing 없음; 배포 전 하나의 executor/fallback 동결", "새로운 MoE gate"],
-            ["Engression", "generic predictive distribution / extrapolation", "승인된 structural tail 보존이 목적", "문헌 SOTA 우월"],
-            ["V-REx", "source-domain risk invariance", "state-level strict-tail + prior authority", "모든 OOD에 우월"],
-        ], font_size=10,
-    )
-    add_text(s, 48, 564, 1184, 44, "Novelty = typed contract + frozen-prior residual authority + validation-only approval + exact fallback/abstention.", 14, C["blue"], True, "center")
+    rect(s, 48, 94, 1184, 70, C["soft_blue"], C["blue"], True)
+    add_text(s, 72, 111, 1136, 36, "Typed contract  +  frozen-prior residual authority  +  validation-only approval  +  exact fallback", 17, C["blue"], True, "center")
+    comparisons = [
+        ("PINN", "완전한 식을 요구하지 않고 typed partial prior의 사용 자격을 검증"),
+        ("Prior-residual", "correction을 더하는 데서 끝나지 않고 수정 권한과 승인 규칙을 명시"),
+        ("MoE", "test sample별 routing 없이 배포 전에 executor 또는 fallback을 하나로 동결"),
+        ("Engression", "generic predictive distribution보다 승인된 structural tail 보존에 초점"),
+        ("V-REx", "domain-risk invariance가 아니라 state-level strict-tail과 prior authority를 통제"),
+    ]
+    for i, (name, diff) in enumerate(comparisons):
+        y = 190 + i * 70
+        rect(s, 48, y, 174, 48, C["ink"], None, True)
+        add_text(s, 58, y + 13, 154, 22, name, 12, C["white"], True, "center")
+        rect(s, 236, y, 996, 48, C["soft"] if i % 2 else C["white"], C["rule"], True)
+        add_text(s, 256, y + 12, 956, 24, diff, 12, C["ink"])
+    add_text(s, 48, 560, 1184, 52, "주장하지 않음  최초의 physics hybrid · 최초의 affine+NN · 새로운 MoE gate · universal/literature SOTA", 13, C["red"], True, "center")
     foot(s, p(), TOTAL)
 
     # Claim / evidence / reviewer defense
     s = blank(prs)
     head(s, "어디까지 주장할 수 있는가", "회고적 우세 · 동일예산 재검증 · prospective 결과를 분리해 과장을 막는다")
-    add_table(
-        s, 30, 86, 1220, 384,
-        ["Tier", "방어 가능한 claim", "Evidence", "Limitation"],
-        [
-            ["A Mixed strongest\nsame-split retrospective", "다양한 setting에서 일관된 우세 방향", "9/9 · exact p=.00390625 · 77 units\ngeo. RMSE reduction 33.8%\nhierarchical CI 15.8–48.6%", "comparator budget heterogeneous\npaired comparator와 pooled strongest 일부 다름"],
-            ["B Uniformly tuned\nequal-budget retrospective", "동일 탐색예산에서도 우세 방향 유지", "9×8 baselines×30 candidates×5 refit\n8/9 · p=.0391 · Virkler −.002", "PP-X 구조개발 전체가 30회였다는 뜻 아님\n5 seeds는 독립 표본 아님"],
-            ["C DS03 prospective\ntruth test", "route-selection은 작동", "fallback .8818 · basic .832 · multiscale .869\nEngression .9013", "predictive superiority FAIL\nCRT .8851 · GCIE .8850/nested .8727 rejected"],
-        ], font_size=10,
-    )
-    rect(s, 48, 494, 1184, 80, C["soft_orange"], C["orange"], True)
-    add_text(s, 66, 506, 1148, 54, "현재 결론: PP-X의 구조적 필요성과 회고적 일관성은 지지된다. 다만 독립 prospective 예측 우월성은 아직 확증되지 않았다.", 14, C["ink"], True, "center")
+    tiers = [
+        ("TIER A", "회고적 일관성", "9/9  ·  p=.00390625\n77 units  ·  RMSE −33.8%\nCI 15.8–48.6%", "비교모델 예산이 일부 이질적"),
+        ("TIER B", "동일예산 재검증", "9×8×30 candidates×5 refit\n8/9  ·  p=.0391\nVirkler −.002", "5 seeds는 독립 표본이 아님"),
+        ("TIER C", "Prospective truth test", "route-selection PASS\nfallback .8818\nEngression .9013", "predictive superiority FAIL"),
+    ]
+    for i, (tier, claim, evidence, limit) in enumerate(tiers):
+        x = 30 + i * 410
+        edge = C["blue"] if i < 2 else C["orange"]
+        rect(s, x, 106, 390, 334, C["white"], edge, True)
+        add_text(s, x + 22, 126, 346, 22, tier, 12, edge, True)
+        add_text(s, x + 22, 168, 346, 30, claim, 18, C["ink"], True)
+        rect(s, x + 22, 222, 346, 118, C["soft_blue"] if i < 2 else C["soft_orange"])
+        add_text(s, x + 38, 240, 314, 84, evidence, 13, C["ink"], True, "center")
+        add_text(s, x + 22, 370, 346, 42, limit, 11, C["muted"], False, "center")
+    rect(s, 48, 474, 1184, 90, C["soft_orange"], C["orange"], True)
+    add_text(s, 66, 491, 1148, 56, "현재 결론  PP-X의 구조적 필요성과 회고적 일관성은 지지된다. 독립 prospective 예측 우월성은 아직 확증되지 않았다.", 15, C["ink"], True, "center")
     add_text(s, 48, 594, 1184, 24, "금지: universal/literature SOTA · safety guarantee · 최초의 hybrid/PINN · prospective superiority.", 12, C["red"], True, "center")
     foot(s, p(), TOTAL)
 
@@ -369,6 +398,26 @@ def build():
     end = rect(s, 220, 518, 840, 44, C["soft"], C["ink"], True)
     fill_shape_text(end, "Assurance    ·    믿기  /  보류  /  거절    →    박사논문에서 두 경로 통합", 14, C["ink"], True)
     add_text(s, 70, 578, 1140, 24, "오늘은 왼쪽만 간다.  PAE와 Assurance는 지도에만 찍는다.", 13, C["muted"], False, "center")
+    foot(s, p(), TOTAL)
+
+    # PP-X at a glance — concise definition before contributions and details.
+    s = blank(prs)
+    head(s, "PP-X 한눈에 보기", "검증이 허용한 구조 가정만 사용하고, 허용되지 않으면 사전 고정 경로로 돌아간다")
+    pic(s, "ppx_framework.png", 58, 92, 1164, 382)
+    rect(s, 58, 500, 1164, 82, C["soft_blue"], C["blue"], True)
+    add_text(
+        s,
+        82,
+        513,
+        1116,
+        54,
+        "한 줄 정의  PP-X는 test sample을 보고 expert를 고르는 모델이 아니다. 배포 전에 typed contract를 선언하고, validation evidence로 executor의 사용 권한을 동결하는 외삽 프레임워크다.",
+        14,
+        C["ink"],
+        True,
+        "center",
+    )
+    add_text(s, 58, 606, 1164, 24, "출력: approved executor의 예측  |  승인 실패: exact frozen fallback 또는 abstention", 13, C["blue"], True, "center")
     foot(s, p(), TOTAL)
 
     # 4 Method — final PP-X boundary
@@ -1292,13 +1341,38 @@ def build():
     add_text(s, 20, 618, 1240, 28, "같은 셀을 시간만 잘라 뒤를 맞추지 않는다.  시험 셀의 미래·최종 수명은 X에 넣지 않는다.", 12, C["muted"])
     foot(s, p(), TOTAL)
 
-    # Put every explicitly marked backup after Q&A, preserving relative order.
+    # Put every explicitly marked backup after Q&A, then enforce the main-story
+    # order independently of source build order.
     sld_ids = list(prs.slides._sldIdLst)
     appendix_ids = []
     main_ids = []
     for sld_id, slide in zip(sld_ids, prs.slides):
         text = "\n".join(sh.text for sh in slide.shapes if hasattr(sh, "text_frame"))
         (appendix_ids if "[Appendix]" in text else main_ids).append(sld_id)
+    desired_main_titles = [
+        "PP-X: Prior-Transferability Adaptive Extrapolation",
+        "문제 · 연구 배경",
+        "연구 루트",
+        "PP-X 한눈에 보기",
+        "왜 PP-X가 필요한가",
+        "PP-X의 세 가지 기여",
+        "무엇이 새로운가",
+        "어디까지 주장할 수 있는가",
+        "방법 — Algorithm 1: Declare → Learn → Approve → Decline",
+    ]
+    title_to_id = {}
+    for sld_id, slide in zip(sld_ids, prs.slides):
+        slide_texts = {
+            shape.text.strip()
+            for shape in slide.shapes
+            if hasattr(shape, "text") and shape.text.strip()
+        }
+        for title in desired_main_titles:
+            if title in slide_texts:
+                title_to_id[title] = sld_id
+    ordered_main = [title_to_id[title] for title in desired_main_titles]
+    main_ids = ordered_main + [sld_id for sld_id in main_ids if sld_id not in ordered_main]
+
     for sld_id in sld_ids:
         prs.slides._sldIdLst.remove(sld_id)
     for sld_id in main_ids + appendix_ids:

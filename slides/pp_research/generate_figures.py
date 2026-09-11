@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.lines import Line2D
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUT = Path("/Users/baghyeongbae/Desktop/연구/ppt/pp/_build/figs")
 OUT.mkdir(parents=True, exist_ok=True)
@@ -944,6 +945,109 @@ def fig_ppx_core():
     save(fig, "ppx_core.png")
 
 
+def fig_ppx_framework():
+    """Publication-ready overview of the frozen PP-X decision protocol."""
+    fig, ax = plt.subplots(figsize=(11.6, 3.8))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    stages = [
+        (
+            0.025,
+            "1  DECLARE",
+            "Typed contract",
+            "state · strict tail · units\nprior · fallback",
+            "#E8F1F8",
+            BLUE,
+        ),
+        (
+            0.275,
+            "2  LEARN",
+            "Prior-centered residual",
+            "frozen prior + source NN\nbounded correction authority",
+            "#E8F1F8",
+            BLUE,
+        ),
+        (
+            0.525,
+            "3  APPROVE",
+            "Validation-only evidence",
+            "physical-unit gain\nunit-risk · false-accept control",
+            "#E8F1F8",
+            BLUE,
+        ),
+        (
+            0.775,
+            "4  FREEZE",
+            "Deployment decision",
+            "approved executor\nor exact fallback / abstention",
+            "#FDF4E3",
+            ORANGE,
+        ),
+    ]
+
+    for x, step, title, detail, face, edge in stages:
+        box = FancyBboxPatch(
+            (x, 0.35),
+            0.20,
+            0.42,
+            boxstyle="round,pad=0.012,rounding_size=0.018",
+            linewidth=1.15,
+            edgecolor=edge,
+            facecolor=face,
+        )
+        ax.add_patch(box)
+        ax.text(x + 0.018, 0.715, step, fontsize=9, color=edge, weight="bold", va="top")
+        ax.text(x + 0.10, 0.605, title, fontsize=11, color=INK, weight="bold", ha="center", va="center")
+        ax.text(x + 0.10, 0.455, detail, fontsize=8.5, color=MUTED, ha="center", va="center", linespacing=1.45)
+
+    for x in [0.225, 0.475, 0.725]:
+        ax.add_patch(
+            FancyArrowPatch(
+                (x + 0.008, 0.56),
+                (x + 0.038, 0.56),
+                arrowstyle="-|>",
+                mutation_scale=12,
+                linewidth=1.0,
+                color=MUTED,
+            )
+        )
+
+    ax.plot([0.535, 0.965], [0.245, 0.245], color=GRID, lw=1.0)
+    ax.text(0.535, 0.205, "PASS", color=BLUE, fontsize=8.5, weight="bold", ha="left", va="center")
+    ax.text(0.585, 0.205, "freeze approved executor", color=INK, fontsize=8.5, ha="left", va="center")
+    ax.text(0.775, 0.205, "FAIL", color=ORANGE, fontsize=8.5, weight="bold", ha="left", va="center")
+    ax.text(0.815, 0.205, "freeze fallback / abstain", color=INK, fontsize=8.5, ha="left", va="center")
+
+    ax.text(
+        0.5,
+        0.91,
+        "PP-X: test-independent approval of structural assumptions",
+        fontsize=13,
+        color=INK,
+        weight="bold",
+        ha="center",
+        va="center",
+    )
+    ax.text(
+        0.5,
+        0.055,
+        "No test-sample routing  ·  no post-hoc executor choice  ·  all thresholds and fallback paths fixed before deployment",
+        fontsize=8.5,
+        color=MUTED,
+        ha="center",
+        va="center",
+    )
+
+    fig.savefig(OUT / "ppx_framework.png", dpi=400, bbox_inches="tight", pad_inches=0.08)
+    fig.savefig(OUT / "ppx_framework.pdf", bbox_inches="tight", pad_inches=0.08)
+    fig.savefig(CANONICAL_OUT / "PPX_Framework_Figure.pdf", bbox_inches="tight", pad_inches=0.08)
+    fig.savefig(CANONICAL_OUT / "PPX_Framework_Figure.svg", bbox_inches="tight", pad_inches=0.08)
+    plt.close(fig)
+    print("wrote ppx_framework.png")
+
+
 def fig_unit_wins():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.4, 3.6), gridspec_kw={"wspace": 0.34})
 
@@ -987,6 +1091,7 @@ def main():
     fig_robustness()
     fig_summary_bars()
     fig_ppx_portfolio()
+    fig_ppx_framework()
     fig_ppx_core()
     fig_extrapolation_cut()
     fig_hull_numbers()
