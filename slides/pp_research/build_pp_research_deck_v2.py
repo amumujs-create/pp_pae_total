@@ -253,7 +253,7 @@ def build():
     # Modeling intent / research gap
     s = blank(prs)
     head(s, "왜 PP-X가 필요한가", "외삽에서는 예측기보다 먼저 구조 가정의 사용 자격을 검증해야 한다")
-    add_text(s, 48, 88, 1184, 54, "관측 범위 밖에서는 데이터만으로 답을 정할 수 없다. PP-X는 구조 가정을 사전 선언하고, 검증된 가정만 실행한다.", 18, C["blue"], True, "center")
+    add_text(s, 48, 88, 1184, 54, "관측 범위를 벗어나면 데이터만으로 예측 곡선의 형태를 정하기 어렵다. 따라서 어떤 구조 가정을 사용할지 먼저 판단해야 한다.", 18, C["blue"], True, "center")
     rect(s, 48, 170, 510, 294, C["soft_orange"], C["orange"], True)
     add_text(s, 72, 188, 462, 28, "기존 외삽의 취약점", 17, C["orange"], True)
     add_text(s, 78, 238, 440, 190, "① support 밖의 tail은 데이터만으로 식별 불가\n\n② prior와 NN의 수정 권한이 불명확\n\n③ test 결과를 본 뒤 구조를 정당화할 위험\n\n④ 가정이 틀려도 예측값을 강제로 출력", 14, C["ink"])
@@ -261,13 +261,13 @@ def build():
     rect(s, 682, 170, 550, 294, C["soft_blue"], C["blue"], True)
     add_text(s, 706, 188, 502, 28, "PP-X의 대응", 17, C["blue"], True)
     add_text(s, 712, 238, 476, 190, "① typed admissibility contract 선언\n\n② frozen prior 중심의 residual 권한 제한\n\n③ physical-unit validation evidence로 승인\n\n④ 미승인 시 exact fallback / abstention", 14, C["ink"])
-    add_text(s, 48, 500, 1184, 68, "핵심 전환  test에서 잘 맞는 모델을 고르는 것이 아니라, test를 보기 전에 구조 가정의 사용 권한을 승인하거나 거절한다.", 16, C["ink"], True, "center")
-    add_text(s, 48, 586, 1184, 30, "PP-X = Declare assumptions → Learn constrained residual → Approve with validation evidence → Decline to fallback", 13, C["muted"], False, "center")
+    add_text(s, 48, 500, 1184, 68, "PP-X는 시험 결과를 보고 유리한 모델을 고르지 않는다. 학습과 검증 단계에서 사용할 가정과 실행 경로를 정하고, 시험 단계에서는 이를 그대로 적용한다.", 16, C["ink"], True, "center")
+    add_text(s, 48, 586, 1184, 30, "가정 선언  ·  제한된 residual 학습  ·  검증자료 기반 승인  ·  미승인 시 대체 경로 적용", 13, C["muted"], False, "center")
     foot(s, p(), TOTAL)
 
     # Contributions and evidence mapping
     s = blank(prs)
-    head(s, "PP-X의 세 가지 기여", "가정을 선언하고 · prior의 권한을 보존하며 · 근거가 없으면 실행하지 않는다")
+    head(s, "본 연구의 기여", "PP-X는 구조 가정의 선언, 학습 범위, 승인 기준을 하나의 절차로 정리한다")
     cards = [
         (
             "01  DECLARE",
@@ -300,14 +300,14 @@ def build():
         rect(s, x + 22, 312, 340, 92, C["soft_blue"])
         add_text(s, x + 36, 324, 312, 66, evidence, 12, C["blue"], True, "center")
         add_text(s, x + 22, 432, 340, 64, limit, 11, C["muted"], False, "center")
-    add_text(s, 48, 566, 1184, 46, "연구 기여 = 새 부품 하나가 아니라, 외삽 가정을 통제하는 선언–학습–승인–거절의 end-to-end 규율", 15, C["blue"], True, "center")
+    add_text(s, 48, 566, 1184, 46, "개별 모듈보다 중요한 기여는 구조 가정의 선언부터 승인 또는 거절까지를 재현 가능한 절차로 정식화했다는 점이다.", 15, C["blue"], True, "center")
     foot(s, p(), TOTAL)
 
     # Novelty positioning
     s = blank(prs)
-    head(s, "무엇이 새로운가", "새 prior나 gate 자체가 아니라 네 요소를 하나의 검증 가능한 실행 계약으로 결합했다")
+    head(s, "기존 방법과의 차이", "구조 가정의 허용 범위와 승인 절차를 명시했다는 점에서 기존 방법과 구분된다")
     rect(s, 48, 94, 1184, 70, C["soft_blue"], C["blue"], True)
-    add_text(s, 72, 111, 1136, 36, "Typed contract  +  frozen-prior residual authority  +  validation-only approval  +  exact fallback", 17, C["blue"], True, "center")
+    add_text(s, 72, 111, 1136, 36, "Typed contract · frozen prior 주변의 residual 학습 · validation-only 승인 · 사전 지정 fallback", 16, C["blue"], True, "center")
     comparisons = [
         ("PINN", "완전한 식을 요구하지 않고 typed partial prior의 사용 자격을 검증"),
         ("Prior-residual", "correction을 더하는 데서 끝나지 않고 수정 권한과 승인 규칙을 명시"),
@@ -321,12 +321,12 @@ def build():
         add_text(s, 58, y + 13, 154, 22, name, 12, C["white"], True, "center")
         rect(s, 236, y, 996, 48, C["soft"] if i % 2 else C["white"], C["rule"], True)
         add_text(s, 256, y + 12, 956, 24, diff, 12, C["ink"])
-    add_text(s, 48, 560, 1184, 52, "주장하지 않음  최초의 physics hybrid · 최초의 affine+NN · 새로운 MoE gate · universal/literature SOTA", 13, C["red"], True, "center")
+    add_text(s, 48, 560, 1184, 52, "개별 모듈의 최초성이나 모든 외삽 문제에서의 우월성은 주장하지 않는다.", 13, C["red"], True, "center")
     foot(s, p(), TOTAL)
 
     # Claim / evidence / reviewer defense
     s = blank(prs)
-    head(s, "어디까지 주장할 수 있는가", "회고적 우세 · 동일예산 재검증 · prospective 결과를 분리해 과장을 막는다")
+    head(s, "결과의 해석 범위", "회고 분석, 동일예산 재검증, prospective 평가를 구분해 해석한다")
     tiers = [
         ("TIER A", "회고적 일관성", "9/9  ·  p=.00390625\n77 units  ·  RMSE −33.8%\nCI 15.8–48.6%", "비교모델 예산이 일부 이질적"),
         ("TIER B", "동일예산 재검증", "9×8×30 candidates×5 refit\n8/9  ·  p=.0391\nVirkler −.002", "5 seeds는 독립 표본이 아님"),
@@ -342,8 +342,8 @@ def build():
         add_text(s, x + 38, 240, 314, 84, evidence, 13, C["ink"], True, "center")
         add_text(s, x + 22, 370, 346, 42, limit, 11, C["muted"], False, "center")
     rect(s, 48, 474, 1184, 90, C["soft_orange"], C["orange"], True)
-    add_text(s, 66, 491, 1148, 56, "현재 결론  PP-X의 구조적 필요성과 회고적 일관성은 지지된다. 독립 prospective 예측 우월성은 아직 확증되지 않았다.", 15, C["ink"], True, "center")
-    add_text(s, 48, 594, 1184, 24, "금지: universal/literature SOTA · safety guarantee · 최초의 hybrid/PINN · prospective superiority.", 12, C["red"], True, "center")
+    add_text(s, 66, 491, 1148, 56, "PP-X의 구조적 필요성과 회고 분석에서의 일관성은 확인되었다. 다만 독립 prospective 평가에서의 예측 우월성은 아직 확증되지 않았다.", 15, C["ink"], True, "center")
+    add_text(s, 48, 594, 1184, 24, "논문의 주장 범위: strict-tail 외삽에서의 구조 검증과 조건부 실행. 보편적 SOTA나 안전 보장은 포함하지 않는다.", 12, C["red"], True, "center")
     foot(s, p(), TOTAL)
 
     # 4 Research route — full diagram
@@ -402,7 +402,7 @@ def build():
 
     # PP-X at a glance — concise definition before contributions and details.
     s = blank(prs)
-    head(s, "PP-X 한눈에 보기", "검증이 허용한 구조 가정만 사용하고, 허용되지 않으면 사전 고정 경로로 돌아간다")
+    head(s, "PP-X 개요", "검증자료가 지지하는 구조만 사용하고, 그렇지 않으면 미리 정한 대체 경로를 적용한다")
     pic(s, "ppx_framework.png", 58, 92, 1164, 382)
     rect(s, 58, 500, 1164, 82, C["soft_blue"], C["blue"], True)
     add_text(
@@ -411,13 +411,13 @@ def build():
         513,
         1116,
         54,
-        "한 줄 정의  PP-X는 test sample을 보고 expert를 고르는 모델이 아니다. 배포 전에 typed contract를 선언하고, validation evidence로 executor의 사용 권한을 동결하는 외삽 프레임워크다.",
+        "PP-X는 시험 표본마다 모델을 바꾸지 않는다. 학습 전에 구조 가정과 대체 경로를 선언하고, 검증자료로 사용할 실행 구조를 결정한 뒤 시험 단계에서는 이를 고정한다.",
         14,
         C["ink"],
         True,
         "center",
     )
-    add_text(s, 58, 606, 1164, 24, "출력: approved executor의 예측  |  승인 실패: exact frozen fallback 또는 abstention", 13, C["blue"], True, "center")
+    add_text(s, 58, 606, 1164, 24, "승인된 경우 해당 executor를 사용하고, 승인되지 않으면 사전 지정 fallback을 사용하거나 예측을 보류한다.", 13, C["blue"], True, "center")
     foot(s, p(), TOTAL)
 
     # 4 Method — final PP-X boundary
@@ -1353,11 +1353,11 @@ def build():
         "PP-X: Prior-Transferability Adaptive Extrapolation",
         "문제 · 연구 배경",
         "연구 루트",
-        "PP-X 한눈에 보기",
+        "PP-X 개요",
         "왜 PP-X가 필요한가",
-        "PP-X의 세 가지 기여",
-        "무엇이 새로운가",
-        "어디까지 주장할 수 있는가",
+        "본 연구의 기여",
+        "기존 방법과의 차이",
+        "결과의 해석 범위",
         "방법 — Algorithm 1: Declare → Learn → Approve → Decline",
     ]
     title_to_id = {}
