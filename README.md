@@ -1,6 +1,6 @@
-# pp_pae_total — Assumption-Aware Extrapolation
+# pp_pae_total — PP-X / Assumption-Aware Extrapolation
 
-This repository is the integration hub for a research program on **assumption-aware extrapolation** for RUL, degradation, crack growth, and related scientific time-series problems.
+This repository is the integration hub for **PP-X**, the first-paper main method, and the broader assumption-aware extrapolation research program for RUL, degradation, crack growth, and related scientific time-series problems.
 
 The program treats extrapolation as an assumption-management problem:
 
@@ -13,7 +13,7 @@ flowchart LR
   A[Observations and domain knowledge] --> B[PAE: observation contract and prior compiler]
   B --> C{Admissible prior}
   C -->|none| D[Prior-off predictor and uncertainty]
-  C -->|weak or partial| E[PP: support-adaptive prior-residual executor]
+  C -->|weak or partial| E[PP-X: validation-approved prior-residual framework]
   C -->|qualitative structure| F[Constrained predictor]
   C -->|quantitative law| G[Physics or equation hybrid]
   D --> H[Assurance layer]
@@ -27,17 +27,30 @@ flowchart LR
 
 | Module | Role | Status |
 |---|---|---|
-| PP | Executes a declared weak prior with a frozen extrapolative tail and a bounded, support-adaptive history residual. | Current first-paper stage |
+| PP-X | Paper-main top-level framework: validates a prior-residual candidate, selects only supported executors, and falls back or abstains when evidence is insufficient. | Current first-paper stage |
+| SAAR | Historical alias and core architecture for the support-aware affine-residual mechanism; not the paper-main method name. | Historical mechanism / stress-test |
+| CCMR v2.2 | Trajectory-domain executor used only when trajectory evidence supports it. | Optional PP-X executor |
 | PAE | Compiles the admissible prior from a typed observation contract and routes among strong, weak, and prior-off executors. | Follow-up paper stage |
 | Assurance | Reports support distance, validation error transport, uncertainty, coverage, and abstention. | PP-specific implementation; cross-executor generalization is future work |
 
 ## Why separate PP and PAE papers?
 
-PP asks: **given a weak prior that is already admissible, how can a neural residual use it safely for strict extrapolation?**
+PP-X asks: **given a candidate weak prior, can a validation-approved prior-residual framework execute it safely for strict extrapolation, or should it fall back/abstain?**
 
 PAE asks: **from available observations, which prior is admissible, and when should the system turn that prior off?**
 
-PP is therefore an independent first result, not an unfinished PAE implementation. PAE will use PP as one possible weak-prior executor.
+PP-X is therefore the independent paper-main result, not an unfinished PAE implementation. PAE is a future program and may route to PP-X; it is not the current paper main.
+
+## Final model boundary
+
+- **PP-X** is the paper-main top-level framework.
+- **SAAR** remains a historical alias/core-architecture label where needed for artifact traceability.
+- **CCMR v2.2** is a trajectory-domain executor only, not the main model.
+- **CRT** and **GCIE** were evaluated and rejected; they are not part of Algorithm 1.
+- On DS03, frozen PP-X fallback achieved R² 0.8818 and Engression achieved 0.9013: route selection passed, but predictive superiority failed.
+- If a candidate prior is rejected, PP-X uses the declared fallback or abstains.
+
+Canonical naming is documented in [`slides/pp_research/PPX_NAMING.md`](slides/pp_research/PPX_NAMING.md). Legacy filenames are retained for reference stability.
 
 ## Scope and claims
 
@@ -61,7 +74,7 @@ See [the Korean research-program document](RESEARCH_PROGRAM_KO.md) for the full 
 ## Presentations
 
 - PP–PAE overview deck: `output/PP_PAE_Assumption_Aware_Extrapolation_v7.pptx` (builder: `slides/build_deck.mjs`)
-- PP research detailed briefing (SAAR / adaptive dual-scale PP): `output/PP_Research_Detailed_v2.pptx` (builder: `slides/pp_research/`)
+- PP-X paper-main detailed briefing: `output/PP_Research_Detailed_v2.pptx` (builder: `slides/pp_research/`)
 
 Edit the fixed deck files in place; do not create parallel v3+ copies of the detailed briefing.
 

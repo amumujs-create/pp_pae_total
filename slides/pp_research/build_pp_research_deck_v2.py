@@ -183,7 +183,7 @@ def foot(slide, n, total=23):
     line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, px(48), px(680), px(1232), px(680))
     line.line.color.rgb = C["rule"]
     line.line.width = Pt(0.75)
-    add_text(slide, 48, 686, 800, 14, "SPS Lab  ·  Prior-Adaptive Extrapolation  ·  PP-X v1.1", 9, C["muted"])
+    add_text(slide, 48, 686, 800, 14, "SPS Lab  ·  PP-X paper main  ·  frozen method v1", 9, C["muted"])
     add_text(slide, 1100, 684, 100, 16, f"{n}/{total}", 10, C["muted"], True, "right")
 
 
@@ -201,7 +201,7 @@ def build():
     prs.slide_width = W
     prs.slide_height = H
     n = 0
-    TOTAL = 27
+    TOTAL = 29
 
     def p():
         nonlocal n
@@ -223,18 +223,18 @@ def build():
     logo = ASSETS / "sps_lab_logo.png"
     if logo.exists():
         s.shapes.add_picture(str(logo), px(860), px(58), px(320), px(64))
-    add_text(s, 80, 220, 1120, 40, "Prior-Adaptive Extrapolation", 28, C["ink"], True, "center")
+    add_text(s, 80, 220, 1120, 40, "PP-X: Prior-Transferability Adaptive Extrapolation", 28, C["ink"], True, "center")
     add_text(s, 80, 268, 1120, 36, "for Robust Prediction Beyond Observed Support", 20, C["ink"], True, "center")
     add_text(s, 80, 330, 1120, 28, "관측된 support 밖에서의 강건 예측", 15, C["muted"], False, "center")
-    add_text(s, 80, 390, 1120, 28, "식 없는 경로  ·  PP-X v1.1", 16, C["blue"], True, "center")
+    add_text(s, 80, 390, 1120, 28, "validation-approved prior-residual framework  ·  frozen method v1", 16, C["blue"], True, "center")
     add_text(s, 80, 470, 1120, 24, "Smart Production Systems Lab.  ·  박사과정 박진서", 14, C["ink"], False, "center")
-    add_text(s, 80, 520, 1120, 22, "2026.09.09", 13, C["muted"], False, "center")
+    add_text(s, 80, 520, 1120, 22, "2026.09.11", 13, C["muted"], False, "center")
     p()
 
     # 2 Problem + background
     s = blank(prs)
     head(s, "문제 · 연구 배경", "밖에서는 데이터가 답을 정하지 못한다.  정당화되는 prior에 맞춰 고른다.")
-    pic(s, "nn_vs_saar_curves.png", 36, 86, 640, 400)
+    pic(s, "nn_vs_ppx_curves.png", 36, 86, 640, 400)
     add_text(s, 36, 492, 640, 36, "점선 왼쪽은 학습, 오른쪽은 그 밖. 제약 없는 NN은 열화 중에도 예측이 되살아난다.", 12, C["muted"])
 
     rect(s, 696, 86, 548, 132, C["soft"], C["rule"], True)
@@ -282,12 +282,12 @@ def build():
     add_text(s, 98, 322, 480, 20, "equation-free", 12, C["muted"])
     add_text(s, 98, 352, 490, 22, "prior-residual core", 15, C["ink"])
     add_text(s, 98, 384, 490, 22, "+ evidence-selected executor", 15, C["ink"])
-    add_text(s, 98, 426, 490, 22, "v1.0 core + validation safety gate  ·  v1.1", 14, C["blue"], True)
+    add_text(s, 98, 426, 490, 22, "validation-approved prior-residual  ·  frozen method v1", 14, C["blue"], True)
 
     rect(s, 670, 272, 540, 200, C["soft_orange"], C["orange"], True)
     rect(s, 670, 272, 8, 200, C["orange"])
     nxt = rect(s, 1056, 286, 130, 24, C["orange"], None, True)
-    fill_shape_text(nxt, "다음 논문", 10, C["white"], True)
+    fill_shape_text(nxt, "future program", 10, C["white"], True)
     add_text(s, 698, 284, 340, 32, "PAE", 24, C["orange"], True)
     add_text(s, 698, 322, 480, 20, "equation-aware", 12, C["muted"])
     add_text(s, 698, 352, 490, 22, "허용된 식 + 제한 NN", 15, C["ink"])
@@ -304,9 +304,9 @@ def build():
     add_text(s, 70, 578, 1140, 24, "오늘은 왼쪽만 간다.  PAE와 Assurance는 지도에만 찍는다.", 13, C["muted"], False, "center")
     foot(s, p(), TOTAL)
 
-    # 4 Method — current PP-X v1.1
+    # 4 Method — final PP-X boundary
     s = blank(prs)
-    head(s, "방법 — PP-X v1.1", "한 네트워크 안에서 prior를 검증하고, 실패하면 exact MLP로 후퇴")
+    head(s, "방법 — PP-X frozen method v1", "validation-approved prior-residual framework · prior reject 시 fallback / abstention")
     pic(s, "ppx_core.png", 20, 78, 760, 400)
     add_table(
         s,
@@ -314,11 +314,11 @@ def build():
         86,
         448,
         248,
-        ["단계", "v1.1이 하는 일"],
+        ["단계", "frozen method v1"],
         [
-            ["(a) prior", "얼린 affine 꼬리 후보. trust>0일 때만 반영"],
-            ["(b) residual", "동일 NN이 nonlinear 보정 r을 학습"],
-            ["(c) 출력", "승인: prior+residual · 거절: trust=0 MLP"],
+            ["(a) candidate", "동결 prior + 제한 residual 후보"],
+            ["(b) validation", "same-split baseline 대비 이득·안정성 확인"],
+            ["(c) decision", "승인 executor · frozen fallback · abstention"],
         ],
         font_size=11,
     )
@@ -330,10 +330,10 @@ def build():
         200,
         ["Safety gate (val만)", "승인 조건"],
         [
-            ["상대 이득", "matched MLP보다 RMSE 2% 이상↓"],
+            ["상대 이득", "same-split fallback보다 RMSE 개선"],
             ["유닛 증거", "unit-bootstrap 95% CI 하한 > 0"],
-            ["승인", "trust .02/.05/.10/.20/.40 중 하나"],
-            ["거절", "trust=0 · exact matched MLP"],
+            ["승인", "validation evidence가 지지한 executor"],
+            ["거절", "frozen fallback 또는 abstention"],
         ],
         font_size=11,
     )
@@ -343,12 +343,12 @@ def build():
         488,
         760,
         88,
-        "(a)와 (b)는 별도 모델이 아니라 같은 네트워크의 두 경로다. validation에서 prior가 matched MLP를 명확히 이길 때만 trust를 남긴다.\n"
-        "근거가 약하면 prior를 제거하고 동일 seed·초기화·optimizer의 trust=0 하위모형을 그대로 출력한다.",
+        "PP-X top-level은 모든 데이터에서 하나의 동일 network를 강제한다는 뜻이 아니다. core와 executor 후보를 validation evidence로 선택한다.\n"
+        "trust=0 exact matched MLP는 역사적 nested stress-test의 한 fallback 구현이다. 최종 방법은 선언된 frozen fallback을 쓰거나 예측을 abstain한다.",
         12,
         C["ink"],
     )
-    add_text(s, 20, 600, 1210, 22, "test 예측을 보고 혼합하지 않는다.  승인 실패 → exact matched MLP.  test는 frozen forward만.", 12, C["muted"])
+    add_text(s, 20, 600, 1210, 22, "test 예측을 보고 혼합하지 않는다. 승인 실패 → 사전 고정 fallback 또는 abstention. test는 frozen forward만.", 12, C["muted"])
     foot(s, p(), TOTAL)
 
     # 5 How the evaluation interval is defined
@@ -470,9 +470,9 @@ def build():
     )
     foot(s, p(), TOTAL)
 
-    # 6 Main results — PP-X portfolio
+    # 6 Main results — retrospective PP-X portfolio
     s = blank(prs)
-    head(s, "주 결과 — PP-X v1.0", "1D 열화좌표 기준의 엄격한 외삽만.  확증 cohort 아님  ·  PAE 없음")
+    head(s, "주 결과 — PP-X 9-setting portfolio", "retrospective concept-aligned evidence · 확증 cohort 아님 · PAE 없음")
     pic(s, "ppx_portfolio.png", 30, 82, 680, 390)
     add_table(
         s,
@@ -535,10 +535,72 @@ def build():
     )
     foot(s, p(), TOTAL)
 
-    # v1.1 model explanation — retain all v1.0 ablation slides below.
+    # Equal-budget prospective evidence
     s = blank(prs)
-    head(s, "PP-X v1.1 — 무엇이 달라졌나", "prior를 더 복잡하게 하지 않고, 사용할 권한을 검증한다")
-    add_text(s, 48, 78, 1184, 30, "하나의 네트워크 안에 prior 경로와 exact matched-MLP 하위모형이 함께 있다.", 15, C["ink"], True)
+    head(s, "동일예산 · prospective 평가", "사전에 고정한 9 settings × 8 baselines × 30 candidates × 5 refit")
+    add_table(
+        s,
+        48,
+        92,
+        1184,
+        180,
+        ["설계", "값", "의미"],
+        [
+            ["Settings", "9", "동일한 prospective 평가 단위"],
+            ["Baselines", "8", "각 setting에서 같은 예산으로 비교"],
+            ["Candidates", "30", "방법별 후보 수 고정"],
+            ["Refit", "5", "선택 후 동일 횟수 재적합"],
+        ],
+        font_size=13,
+    )
+    rect(s, 48, 304, 360, 220, C["soft_blue"], C["blue"], True)
+    add_text(s, 68, 320, 320, 28, "전체 판정", 18, C["blue"], True)
+    add_text(s, 68, 366, 320, 112, "PP-X  8 / 9\n양측 sign p=.0391\n\n동일예산에서 우세 방향", 16, C["ink"], False, "center")
+
+    rect(s, 460, 304, 360, 220, C["soft_orange"], C["orange"], True)
+    add_text(s, 480, 320, 320, 28, "유일한 미승리", 18, C["orange"], True)
+    add_text(s, 480, 366, 320, 112, "Virkler  −0.002\n\n차이는 작지만\n승리로 세지 않는다", 16, C["ink"], False, "center")
+
+    rect(s, 872, 304, 360, 220, C["soft"], C["ink"], True)
+    add_text(s, 892, 320, 320, 28, "DS03", 18, C["ink"], True)
+    add_text(s, 892, 360, 320, 126, "frozen PP-X fallback  .8818\nEngression  .9013\n\nroute-selection  PASS\npredictive-superiority  FAIL", 14, C["ink"], False, "center")
+
+    add_text(s, 48, 552, 1184, 56, "해석  prospective protocol은 선택 예산을 맞춘다. DS03에서 올바른 fallback 경로를 골랐어도 최고 예측기는 아니므로 route success와 predictive superiority를 분리한다.", 13, C["ink"])
+    add_text(s, 48, 616, 1184, 22, "N-CMAPSS 0.937 portfolio split은 DS03가 아니다. 서로 다른 split·비교를 섞지 않는다.", 12, C["muted"], True)
+    foot(s, p(), TOTAL)
+
+    # Final model boundary
+    s = blank(prs)
+    head(s, "최종 모델 경계", "PP-X가 top-level · executor와 rejected 개발안을 구분한다")
+    add_table(
+        s,
+        48,
+        92,
+        1184,
+        330,
+        ["구성", "역할 / 결과", "최종 판정"],
+        [
+            ["PP-X", "validation-approved prior-residual framework", "paper main · frozen method v1"],
+            ["SAAR", "support-aware affine-residual mechanism", "historical alias / core architecture"],
+            ["CCMR v2.2", "trajectory-domain 실행", "executor only · 메인 아님"],
+            ["CRT", "DS03 .8851 < Engression .9013", "rejected · Algorithm 1 미포함"],
+            ["GCIE", ".8850 · nested .8727", "rejected · Algorithm 1 미포함"],
+        ],
+        font_size=12,
+    )
+    rect(s, 48, 454, 570, 126, C["soft_blue"], C["blue"], True)
+    add_text(s, 68, 466, 530, 24, "승인될 때", 15, C["blue"], True)
+    add_text(s, 68, 500, 530, 64, "validation evidence가 지지한 core / domain executor만 실행", 14, C["ink"], False, "center")
+    rect(s, 662, 454, 570, 126, C["soft_orange"], C["orange"], True)
+    add_text(s, 682, 466, 530, 24, "prior가 거절될 때", 15, C["orange"], True)
+    add_text(s, 682, 500, 530, 64, "사전 고정 fallback으로 전환하거나 abstention · test로 재선택 금지", 14, C["ink"], False, "center")
+    add_text(s, 48, 600, 1184, 30, "PAE는 future program일 뿐 paper main이 아니다. CRT/GCIE는 최종 Algorithm 1에 넣지 않는다.", 13, C["muted"], True, "center")
+    foot(s, p(), TOTAL)
+
+    # Historical v1.1 model explanation — retain legacy ablation evidence.
+    s = blank(prs)
+    head(s, "역사적 메커니즘 — trust stress-test", "개발 당시 v1.1 nested network · 최종 PP-X 전체 구조가 아님")
+    add_text(s, 48, 78, 1184, 30, "이 장의 동일-network 설계는 trust와 exact fallback을 검증한 historical mechanism/stress-test다.", 15, C["ink"], True)
     rect(s, 48, 134, 340, 330, C["soft_orange"], C["orange"], True)
     add_text(s, 70, 150, 296, 26, "① 후보 생성", 18, C["orange"], True)
     add_text(s, 70, 198, 296, 220, "trust > 0\n동결 affine prior\n+ nonlinear residual\n\ntrust = 0\n동일 초기화·optimizer의\nmatched MLP", 15, C["ink"], False, "center")
@@ -551,13 +613,13 @@ def build():
     add_text(s, 866, 150, 344, 26, "③ 한 경로만 출력", 18, C["ink"], True)
     add_text(s, 866, 198, 344, 220, "통과  prior trust 유지\n\n실패  trust = 0\nexact matched MLP\n\n※ test 예측을 보고\n혼합하지 않는다", 15, C["ink"], False, "center")
     rect(s, 48, 500, 1184, 76, C["ink"], None, True)
-    add_text(s, 70, 517, 1140, 46, "v1.0 = prior executor의 구조를 검증   ·   v1.1 = 그 prior를 새 고호트에서 켜도 되는지 검증", 15, C["white"], True, "center")
-    add_text(s, 48, 590, 1184, 26, "주의  Stanford 결과를 본 뒤 만든 post-test development다. 기존 v1.0 주표와 ablation을 소급 대체하지 않는다.", 12, C["red"], True)
+    add_text(s, 70, 517, 1140, 46, "historical v1.0 = core 구조 점검   ·   historical v1.1 = trust/fallback stress-test", 15, C["white"], True, "center")
+    add_text(s, 48, 590, 1184, 26, "주의  Stanford 결과를 본 뒤 만든 post-test development다. retrospective portfolio와 final Algorithm 1을 소급 대체하지 않는다.", 12, C["red"], True)
     foot(s, p(), TOTAL)
 
-    # v1.1 complete trust/architecture ablation
+    # Historical v1.1 trust/architecture stress-test
     s = blank(prs)
-    head(s, "Ablation — PP-X v1.1 trust · architecture", "2고호트 × 6 trust × 4 architecture × 5 seeds = 240 fits")
+    head(s, "Historical stress-test — trust · architecture", "개발 당시 v1.1 · 2고호트 × 6 trust × 4 architecture × 5 seeds = 240 fits")
     pic(s, "v11_complete_trust.png", 28, 82, 760, 400)
     add_table(
         s,
@@ -587,12 +649,12 @@ def build():
         13,
         C["ink"],
     )
-    add_text(s, 48, 606, 1184, 22, "모든 구현 trust×width×learning-rate 조합을 같은 5 seeds로 재학습했다.", 12, C["muted"], True)
+    add_text(s, 48, 606, 1184, 22, "historical mechanism evidence only · final PP-X 전체가 하나의 동일 network라는 뜻이 아니다.", 12, C["muted"], True)
     foot(s, p(), TOTAL)
 
-    # v1.1 gate factorial and seed stability
+    # Historical v1.1 gate factorial and seed stability
     s = blank(prs)
-    head(s, "Ablation — PP-X v1.1 gate 2×2 · seed", "2% margin on/off × unit-bootstrap on/off · exact fallback")
+    head(s, "Historical stress-test — gate 2×2 · seed", "개발 당시 v1.1 · 2% margin on/off × unit-bootstrap on/off · exact fallback")
     pic(s, "v11_complete_gate_seed.png", 28, 82, 760, 390)
     add_table(
         s,
@@ -621,7 +683,7 @@ def build():
         13,
         C["ink"],
     )
-    add_text(s, 48, 606, 1184, 22, "기존 v1.0 ablation은 다음 장부터 그대로 유지한다. 이번 두 고호트도 retrospective mechanism evidence다.", 12, C["muted"], True)
+    add_text(s, 48, 606, 1184, 22, "다음 legacy ablation과 이 두 고호트는 retrospective mechanism evidence다. final Algorithm 1의 동일-network 주장이 아니다.", 12, C["muted"], True)
     foot(s, p(), TOTAL)
 
     # Ablation — dual-scale is one executor
@@ -779,7 +841,7 @@ def build():
             ["W", "Wilcoxon", "soft / affine 대비", "24/25 · 25/25"],
             ["W", "Wilcoxon", "trainable / unbounded", "p=.071 · .578  못 함"],
             ["U", "Unit wins", "아홉 셋 물리 유닛 77개", "60/77 이김"],
-            ["D", "Sign test", "아홉 셋 모두 우세인가", "9/9  양측 p=.0039"],
+            ["D", "Sign test", "이질적 strongest same-split 비교", "9/9  양측 p=.0039"],
             ["B", "Bound audit", "residual이 이론 bound를 넘나", "0 / 17,645"],
         ],
         font_size=10,
@@ -792,7 +854,7 @@ def build():
     add_text(s, 352, 464, 276, 155, "5 seed가 affine을 골랐는가.\nH0: 확률 ≤ 0.5.\n5/5만 α=0.05 통과.\n물리 반복이 아님.", 11, C["ink"])
     rect(s, 652, 432, 300, 200, C["soft_orange"], C["orange"], True)
     add_text(s, 664, 440, 276, 20, "D  Domain sign", 12, C["blue"], True)
-    add_text(s, 664, 464, 276, 155, "1D 엄격한 외삽 9곳.\n9/9 양측 exact p=.0039.\n계층 bootstrap 95% CI\nlog-RMSE [0.16, 0.65].", 11, C["ink"])
+    add_text(s, 664, 464, 276, 155, "이질적인 9 settings의\nstrongest same-split comparison.\n9/9 양측 exact p=.0039.\n확증용 동일 baseline 검정 아님.", 11, C["ink"])
     rect(s, 964, 432, 276, 200, C["soft"], C["ink"], True)
     add_text(s, 976, 440, 252, 20, "B  Bound audit", 12, C["ink"], True)
     add_text(s, 976, 464, 252, 155, "가설검정이 아니라 제약 감사.\n|ŷ−affine| ≤ margin·B\n17,645점 위반 0.", 11, C["ink"])
@@ -837,7 +899,7 @@ def build():
         [
             ["MICH (base)", "-1.522", "관계 이동 · 보정 꺼짐", "dual-scale 켠 뒤 0.751"],
             ["MATR2019", "0.466", "1D 건강 tail은 맞음", "주표에 남기되 약점"],
-            ["N-CMAPSS", "0.937", "1D 100% · PCA2 0%", "조건 외삽. 먼 RUL tail 아님"],
+            ["N-CMAPSS", "0.937*", "1D 100% · PCA2 0%", "portfolio split. DS03 아님"],
             ["MATRb2", "0.862", "1D 100% · PCA2 0% · PCA3 99.2%", "다차원 geometry를 같이 적음"],
         ],
         font_size=12,
@@ -851,7 +913,7 @@ def build():
         220,
         ["Claim", "Detail"],
         [
-            ["Model", "현재 v1.1 safety · 표 수치는 기존 v1.0 portfolio"],
+            ["Model", "frozen method v1 · 표 수치는 retrospective portfolio"],
             ["Scope", "unit-disjoint · hull-out · val-only"],
             ["Not default", "dual-scale · transport · full history"],
             ["Venue", "분야 Q1–Q2"],
@@ -873,6 +935,7 @@ def build():
         ],
         font_size=12,
     )
+    add_text(s, 48, 616, 1184, 22, "* N-CMAPSS 0.937은 retrospective portfolio split이다. prospective DS03와 동일 split·비교가 아니다.", 11, C["muted"], True)
     foot(s, p(), TOTAL)
 
     # Locked cohorts already scored — no new download
@@ -914,9 +977,9 @@ def build():
     now = rect(s, 286, 126, 118, 24, C["blue"], None, True)
     fill_shape_text(now, "지금", 11, C["white"], True)
     add_text(s, 72, 126, 200, 32, "PP-X", 22, C["blue"], True)
-    add_text(s, 72, 170, 330, 22, "식 없는 경로", 13, C["muted"])
+    add_text(s, 72, 170, 330, 22, "validation-approved prior-residual", 12, C["muted"])
     add_text(s, 72, 210, 330, 80, "core + selected executor\nSun .939  RWTH .878\nMICH .751 (dual-scale)", 14, C["ink"])
-    add_text(s, 72, 320, 330, 60, "v1.0 core\n+ v1.1 safety", 14, C["ink"])
+    add_text(s, 72, 320, 330, 60, "paper main\nfrozen method v1", 14, C["ink"])
     add_text(s, 72, 400, 330, 40, "만능 SOTA 아님", 13, C["blue"], True)
 
     rect(s, 450, 110, 380, 360, C["soft_orange"], C["orange"], True)
@@ -926,7 +989,7 @@ def build():
     add_text(s, 474, 126, 200, 32, "PAE", 22, C["orange"], True)
     add_text(s, 474, 170, 330, 22, "식 있는 경로", 13, C["muted"])
     add_text(s, 474, 210, 330, 90, "LLM·온톨로지·source gate\n허용된 식만 실행\n이득 없으면 PP-X", 14, C["ink"])
-    add_text(s, 474, 400, 330, 40, "다음 논문", 13, C["orange"], True)
+    add_text(s, 474, 400, 330, 40, "future program", 13, C["orange"], True)
 
     rect(s, 852, 110, 380, 360, C["soft"], C["ink"], True)
     rect(s, 852, 110, 8, 360, C["ink"])
@@ -943,7 +1006,7 @@ def build():
         500,
         1184,
         70,
-        "밖을 지탱하는 것은 가정이다.  식이 없으면 PP-X.  executor는 근거 있을 때만 켠다.",
+        "PP-X는 validation-approved prior-residual framework다. executor는 근거 있을 때만 켜고, 아니면 fallback / abstention한다.",
         15,
         C["ink"],
         True,
@@ -953,7 +1016,7 @@ def build():
 
     # PAE concept + gates
     s = blank(prs)
-    head(s, "후속 — PAE 컨셉", "출처가 고정된 식을 컴파일하고, 적용 가능한지 검증한 뒤에만 실행한다.")
+    head(s, "Future program — PAE 컨셉", "출처가 고정된 식을 컴파일하고, 적용 가능한지 검증한 뒤에만 실행한다.")
     add_text(s, 48, 84, 1184, 22, "PAE는 식 생성기가 아니다. 문헌 식 카드가 의미적으로 실행 가능하고, 검증에서 전이될 때만 켠다.", 13, C["ink"])
 
     inn = rect(s, 48, 116, 360, 56, C["soft"], C["ink"], True)
@@ -1007,7 +1070,7 @@ def build():
     add_text(s, 888, 452, 328, 56, "식도 없고 PP-X도 불안정하면\n예측하지 않는다.", 12, C["ink"])
 
     add_text(s, 48, 532, 1184, 28, "검사 항목   상태 · 고장 메커니즘 · 필수 변수 · 단위 · 경계 · 출처.   데이터셋 이름으로 경로를 고르지 않는다.", 12, C["ink"])
-    add_text(s, 48, 564, 1184, 24, "자유 LLM 식 생성은 성공이 아니라 계약 위반이다. 다음 논문 경로이며 오늘 주표와 숫자를 섞지 않는다.", 12, C["muted"])
+    add_text(s, 48, 564, 1184, 24, "자유 LLM 식 생성은 성공이 아니라 계약 위반이다. PAE는 future program이며 PP-X paper-main 숫자와 섞지 않는다.", 12, C["muted"])
     foot(s, p(), TOTAL)
 
     # PAE feasibility
@@ -1064,9 +1127,12 @@ def build():
         140,
         360,
         1000,
-        80,
-        "오늘: PP-X v1.1  ·  prior-residual candidate + validation safety gate + exact MLP fallback\n다음: LLM·온톨로지·source gate로 식을 판별하고, 이득 없으면 PP-X",
-        15,
+        110,
+        "PP-X paper main  ·  validation-approved prior-residual framework  ·  frozen method v1\n"
+        "근거  retrospective portfolio 9/9 · uniformly tuned equal-budget 8/9\n"
+        "한계  DS03 route-selection PASS · predictive-superiority FAIL\n"
+        "prior reject → frozen fallback / abstention  ·  PAE는 future program",
+        14,
         C["ink"],
         False,
         "center",

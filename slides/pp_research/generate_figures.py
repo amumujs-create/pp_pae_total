@@ -19,6 +19,8 @@ from matplotlib.lines import Line2D
 
 OUT = Path("/Users/baghyeongbae/Desktop/연구/ppt/pp/_build/figs")
 OUT.mkdir(parents=True, exist_ok=True)
+CANONICAL_OUT = Path("/Users/baghyeongbae/Desktop/연구/pp_pae_total/output")
+CANONICAL_OUT.mkdir(parents=True, exist_ok=True)
 
 # Colorblind-safe (Okabe–Ito); avoid red–green
 INK = "#222222"
@@ -118,13 +120,13 @@ def panel_label(ax, lab, x=-0.08, y=1.06):
 
 # ── 1 Mechanism curves (illustrative, but plotted as a figure) ────────────────
 
-def fig_nn_vs_saar():
+def fig_nn_vs_ppx():
     fig, ax = plt.subplots(figsize=(6.5, 3.8))
     x = np.linspace(0, 8, 400)
     b = 4.0
     true = 0.88 - 0.07 * x
     nn = np.where(x <= b, true, true[np.searchsorted(x, b)] + 0.02 * (x - b) + 0.045 * (x - b) ** 2)
-    saar = np.where(x <= b, true, true[np.searchsorted(x, b)] - 0.055 * (x - b) + 0.008 * np.tanh(x - b))
+    ppx = np.where(x <= b, true, true[np.searchsorted(x, b)] - 0.055 * (x - b) + 0.008 * np.tanh(x - b))
 
     ax.axvspan(0, b, color="#F3F3F3", zorder=0)
     ax.axvline(b, color=MUTED, ls=":", lw=1.2)
@@ -133,7 +135,7 @@ def fig_nn_vs_saar():
     ax.plot(x[x <= b], true[x <= b], color=DARK, lw=1.8, label="Observed")
     ax.plot(x[x >= b], true[x >= b], color=DARK, lw=1.5, ls="--", label="Plausible true")
     ax.plot(x[x >= b], nn[x >= b], color=ORANGE, lw=1.8, ls="-.", label="Unconstrained NN")
-    ax.plot(x[x >= b], saar[x >= b], color=BLUE, lw=2.0, label="PP-X core")
+    ax.plot(x[x >= b], ppx[x >= b], color=BLUE, lw=2.0, label="PP-X core")
 
     ax.set_xlim(0, 8)
     ax.set_ylim(0.25, 1.05)
@@ -142,7 +144,7 @@ def fig_nn_vs_saar():
     journal_ax(ax, "y")
     ax.legend(frameon=False, fontsize=8, loc="upper right")
     ax.set_title("OOS behavior: NN vs PP-X", loc="left", fontsize=10, color=INK, fontweight="bold")
-    save(fig, "nn_vs_saar_curves.png")
+    save(fig, "nn_vs_ppx_curves.png")
 
 
 # ── 2 Main development results ───────────────────────────────────────────────
@@ -388,6 +390,12 @@ def fig_competitor():
     fig.savefig(OUT / "competitor_bars.png", dpi=400, bbox_inches="tight", pad_inches=0.32)
     fig.savefig(OUT / "competitor_journal.pdf", bbox_inches="tight", pad_inches=0.22)
     fig.savefig(OUT / "competitor_journal.svg", bbox_inches="tight", pad_inches=0.22)
+    canonical_svg = CANONICAL_OUT / "competitor_journal.svg"
+    fig.savefig(canonical_svg, bbox_inches="tight", pad_inches=0.22)
+    # Matplotlib emits path data with line-ending spaces; normalize the tracked
+    # canonical artifact so repository whitespace checks remain meaningful.
+    svg_text = canonical_svg.read_text(encoding="utf-8")
+    canonical_svg.write_text("\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n", encoding="utf-8")
     plt.close(fig)
     print("wrote competitor_bars.png (+ pdf/svg)")
 
@@ -972,7 +980,7 @@ def fig_unit_wins():
 
 
 def main():
-    fig_nn_vs_saar()
+    fig_nn_vs_ppx()
     fig_main_results()
     fig_ablation_panel()
     fig_competitor()
