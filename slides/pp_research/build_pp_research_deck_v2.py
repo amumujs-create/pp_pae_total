@@ -252,8 +252,8 @@ def build():
 
     # Modeling intent / research gap
     s = blank(prs)
-    head(s, "모델링 의도 · research gap", "외삽을 test-independent structural assumption approval 문제로 다시 정의한다")
-    add_text(s, 48, 88, 1184, 54, "PP-X treats extrapolation as test-independent approval/rejection of structural assumptions.", 19, C["blue"], True, "center")
+    head(s, "왜 PP-X가 필요한가", "외삽에서는 예측기보다 먼저 구조 가정의 사용 자격을 검증해야 한다")
+    add_text(s, 48, 88, 1184, 54, "관측 범위 밖에서는 데이터만으로 답을 정할 수 없다. PP-X는 구조 가정을 사전 선언하고, 검증된 가정만 실행한다.", 18, C["blue"], True, "center")
     add_table(
         s, 48, 166, 1184, 292,
         ["기존 공백", "PP-X의 질문", "설계 결과"],
@@ -264,13 +264,13 @@ def build():
             ["가정이 거절돼도 숫자를 내는 관행", "거절 시 정확히 무엇을 실행하는가?", "exact frozen fallback / abstention"],
         ], font_size=12,
     )
-    add_text(s, 48, 492, 1184, 76, "연구 gap은 affine+NN, hard boundary, gate 각각의 최초성이 아니다. typed admissibility + prior-centered residual authority + predeployment unit-risk approval/fallback을 하나의 실행 계약으로 결합하는 데 있다.", 14, C["ink"], True, "center")
-    add_text(s, 48, 586, 1184, 30, "목표: test sample별로 잘 맞는 모델을 고르는 것이 아니라, test를 보기 전에 구조 가정의 사용 권한을 승인하거나 거절한다.", 13, C["muted"], False, "center")
+    add_text(s, 48, 492, 1184, 76, "핵심 전환: test에서 잘 맞는 모델을 고르는 것이 아니라, test를 보기 전에 구조 가정의 사용 권한을 승인하거나 거절한다.", 15, C["ink"], True, "center")
+    add_text(s, 48, 586, 1184, 30, "PP-X = Declare assumptions → Learn constrained residual → Approve with validation evidence → Decline to fallback", 13, C["muted"], False, "center")
     foot(s, p(), TOTAL)
 
     # Contributions and evidence mapping
     s = blank(prs)
-    head(s, "본 연구의 기여 3개 · evidence mapping", "각 기여는 지지 증거와 반례를 함께 제시한다")
+    head(s, "PP-X의 세 가지 기여", "가정을 선언하고 · prior의 권한을 보존하며 · 근거가 없으면 실행하지 않는다")
     add_table(
         s, 32, 88, 1216, 460,
         ["기여", "핵심 증거", "반례 · 한계"],
@@ -280,12 +280,12 @@ def build():
             ["③ Predeployment\napproval / fallback", "Sun bound +.221 · MICH dual-scale +.283\nHUST transport +.128 · MATRb2 +.187\nDS03 route-selection PASS", "DS03 predictive superiority FAIL\nfallback .8818 < Engression .9013"],
         ], font_size=11,
     )
-    add_text(s, 48, 572, 1184, 38, "기여의 단위는 ‘새 부품’이 아니라 선언–권한–승인–거절이 연결된 실행 규율이다.", 15, C["blue"], True, "center")
+    add_text(s, 48, 572, 1184, 38, "핵심 기여는 새 부품 하나가 아니라, 외삽 가정을 통제하는 선언–학습–승인–거절의 end-to-end 규율이다.", 15, C["blue"], True, "center")
     foot(s, p(), TOTAL)
 
     # Novelty positioning
     s = blank(prs)
-    head(s, "Novelty positioning matrix", "인접 방법과의 차이를 좁고 방어 가능하게 진술한다")
+    head(s, "무엇이 새로운가", "새 prior나 gate 자체가 아니라 네 요소를 하나의 검증 가능한 실행 계약으로 결합했다")
     add_table(
         s, 28, 88, 1224, 450,
         ["계열", "주요 초점", "PP-X와의 차이", "주장하지 않는 것"],
@@ -297,12 +297,12 @@ def build():
             ["V-REx", "source-domain risk invariance", "state-level strict-tail + prior authority", "모든 OOD에 우월"],
         ], font_size=10,
     )
-    add_text(s, 48, 564, 1184, 44, "Novelty claim: typed admissibility + prior-centered residual authority + predeployment unit-risk approval/fallback의 결합.", 14, C["blue"], True, "center")
+    add_text(s, 48, 564, 1184, 44, "Novelty = typed contract + frozen-prior residual authority + validation-only approval + exact fallback/abstention.", 14, C["blue"], True, "center")
     foot(s, p(), TOTAL)
 
     # Claim / evidence / reviewer defense
     s = blank(prs)
-    head(s, "Claim–evidence–limitation · reviewer defense", "세 evidence tier를 합치지 않고 투고 주장을 제한한다")
+    head(s, "어디까지 주장할 수 있는가", "회고적 우세 · 동일예산 재검증 · prospective 결과를 분리해 과장을 막는다")
     add_table(
         s, 30, 86, 1220, 384,
         ["Tier", "방어 가능한 claim", "Evidence", "Limitation"],
@@ -313,7 +313,7 @@ def build():
         ], font_size=10,
     )
     rect(s, 48, 494, 1184, 80, C["soft_orange"], C["orange"], True)
-    add_text(s, 66, 506, 1148, 54, "투고 bottleneck: 독립 prospective predictive superiority 1개 추가 필요. 현재는 route-selection validity와 retrospective breadth를 주장하고, prospective superiority는 주장하지 않는다.", 14, C["ink"], True, "center")
+    add_text(s, 66, 506, 1148, 54, "현재 결론: PP-X의 구조적 필요성과 회고적 일관성은 지지된다. 다만 독립 prospective 예측 우월성은 아직 확증되지 않았다.", 14, C["ink"], True, "center")
     add_text(s, 48, 594, 1184, 24, "금지: universal/literature SOTA · safety guarantee · 최초의 hybrid/PINN · prospective superiority.", 12, C["red"], True, "center")
     foot(s, p(), TOTAL)
 
