@@ -2,6 +2,11 @@
 
 This repository is the integration hub for **PP-X**, the first-paper main method, and the broader assumption-aware extrapolation research program for RUL, degradation, crack growth, and related scientific time-series problems.
 
+> **First-paper review status:** PP-X is the current first-paper candidate and
+> remains under pre-submission review. See
+> [`FIRST_PAPER_REVIEW_KO.md`](FIRST_PAPER_REVIEW_KO.md) for the evidence,
+> claim boundary, and remaining review items.
+
 The program treats extrapolation as an assumption-management problem:
 
 1. **Compile** only the structural priors justified by what is observed.
